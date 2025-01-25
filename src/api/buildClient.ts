@@ -55,7 +55,7 @@ const buildClient = (
   }
   return {
     entitlementGet: ((args: Parameters<typeof entitlementGet>[0] = {}) =>
-      entitlementGet({ config: mergeConfigs(baseConfig, args?.config) })) as typeof entitlementGet,
+      entitlementGet({ config: mergeConfigs(baseConfig, args.config) })) as typeof entitlementGet,
     experimentIdDelete: ((args: Parameters<typeof experimentIdDelete>[0]) =>
       experimentIdDelete({
         ...args,
@@ -107,16 +107,16 @@ const buildClient = (
         config: mergeConfigs(baseConfig, args.config),
       })) as typeof experimentSearchPost,
     userPost: ((args: Parameters<typeof userPost>[0] = {}) =>
-      userPost({ config: mergeConfigs(baseConfig, args?.config) })) as typeof userPost,
+      userPost({ config: mergeConfigs(baseConfig, args.config) })) as typeof userPost,
     userSearchPost: ((args: Parameters<typeof userSearchPost>[0]) =>
       userSearchPost({
         ...args,
         config: mergeConfigs(baseConfig, args.config),
       })) as typeof userSearchPost,
     userSelfGet: ((args: Parameters<typeof userSelfGet>[0] = {}) =>
-      userSelfGet({ config: mergeConfigs(baseConfig, args?.config) })) as typeof userSelfGet,
+      userSelfGet({ config: mergeConfigs(baseConfig, args.config) })) as typeof userSelfGet,
     userSelfPut: ((args: Parameters<typeof userSelfPut>[0] = {}) =>
-      userSelfPut({ config: mergeConfigs(baseConfig, args?.config) })) as typeof userSelfPut,
+      userSelfPut({ config: mergeConfigs(baseConfig, args.config) })) as typeof userSelfPut,
   };
 };
 

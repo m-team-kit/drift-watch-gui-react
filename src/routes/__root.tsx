@@ -6,39 +6,38 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import '../main.css';
 
 export const Route = createRootRoute({
+  // @ts-expect-error circular dependency?
   component: RootComponent,
 });
 
 const queryClient = new QueryClient();
 
-function RootComponent() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="p-2 flex gap-2 text-lg">
-          <Link
-            to="/"
-            activeProps={{
-              className: 'font-bold',
-            }}
-            activeOptions={{ exact: true }}
-          >
-            Home
-          </Link>{' '}
-          <Link
-            to="/about"
-            activeProps={{
-              className: 'font-bold',
-            }}
-          >
-            About
-          </Link>
-        </div>
-        <hr />
-        <Outlet />
-        <TanStackRouterDevtools position="bottom-left" />
-        <ReactQueryDevtools position="right" />
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
-}
+const RootComponent = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <div className="p-2 flex gap-2 text-lg">
+        <Link
+          to="/"
+          activeProps={{
+            className: 'font-bold',
+          }}
+          activeOptions={{ exact: true }}
+        >
+          Home
+        </Link>{' '}
+        <Link
+          to="/about"
+          activeProps={{
+            className: 'font-bold',
+          }}
+        >
+          About
+        </Link>
+      </div>
+      <hr />
+      <Outlet />
+      <TanStackRouterDevtools position="bottom-left" />
+      <ReactQueryDevtools position="right" />
+    </TooltipProvider>
+  </QueryClientProvider>
+);

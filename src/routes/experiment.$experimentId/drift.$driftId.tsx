@@ -5,16 +5,14 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 
-export const Route = createFileRoute('/experiment/$experimentId/drift/$driftId')({
-  component: RouteComponent,
-});
-
-function RouteComponent() {
+const RouteComponent = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { experimentId, driftId } = Route.useParams();
   const drift = useQuery({
     queryKey: ['experimentDrift', `${experimentId}-${driftId}`],
     queryFn: () =>
       experimentIdDriftIdGet({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         params: { experiment_id: experimentId, drift_id: driftId },
         config: {
           basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
@@ -69,4 +67,8 @@ function RouteComponent() {
       </div>
     </>
   );
-}
+};
+
+export const Route = createFileRoute('/experiment/$experimentId/drift/$driftId')({
+  component: RouteComponent,
+});

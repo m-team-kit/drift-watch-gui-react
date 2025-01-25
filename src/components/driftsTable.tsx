@@ -1,8 +1,8 @@
-import type { Drift } from '@/api/models/index';
+import  { type Drift } from '@/api/models/index';
 import columnSortButton from '@/components/columnSortButton';
 import { Button } from '@/components/ui/button';
 import { Link } from '@tanstack/react-router';
-import { ColumnDef } from '@tanstack/react-table';
+import { type ColumnDef } from '@tanstack/react-table';
 import { Eye } from 'lucide-react';
 
 export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (experimentId) => [

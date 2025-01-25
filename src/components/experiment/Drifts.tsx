@@ -1,9 +1,9 @@
 import experimentIdDriftSearchPost from '@/api/functions/experimentIdDriftSearchPost';
-import { Experiment } from '@/api/models';
+import { type Experiment } from '@/api/models';
 import { driftsColumns } from '@/components/driftsTable';
 import { DataTable } from '@/components/ui/data-table';
 import { useQuery } from '@tanstack/react-query';
-import { FC, useMemo } from 'react';
+import { type FC, useMemo } from 'react';
 
 type DriftsProps = {
   experiment: Experiment;

@@ -5,10 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/')({
+  // @ts-expect-error circular dependency?
   component: HomeComponent,
 });
 
-function HomeComponent() {
+const HomeComponent = () => {
   const experiments = useQuery({
     queryKey: ['experiments'],
     queryFn: () =>
@@ -55,4 +56,4 @@ function HomeComponent() {
       <DataTable columns={experimentsColumns} data={experiments.data.data} />
     </>
   );
-}
+};
