@@ -12,7 +12,7 @@ const ButtonBadge = ({ onClick, children }: PropsWithChildren<{ onClick: () => v
   >
     {children}
 
-    <X className="group-hover:text-destructive" />
+    <X className="group-hover:text-destructive ms-1 w-[0.667rem]" />
   </button>
 );
 
