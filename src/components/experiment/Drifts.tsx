@@ -148,11 +148,12 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
     <>
       <FilterInput filter={filter} setFilter={setFilter} />
       <DataTable columns={columns} data={drifts.data.data} />
-      {pagination.status === 'valid' ? (
-        <Paginate page={page} setPage={setPage} pagination={pagination.data} />
-      ) : (
-        pagination.status
-      )}
+      <Paginate
+        page={page}
+        setPage={setPage}
+        pagination={'data' in pagination ? pagination.data : undefined}
+        className="mt-2"
+      />
     </>
   );
 };

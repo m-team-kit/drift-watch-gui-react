@@ -15,27 +15,30 @@ import { useEffect } from 'react';
 type PaginateProps = {
   page: number;
   setPage: (page: number) => void;
-  pagination: PaginationMetadata;
+  pagination?: PaginationMetadata;
+  className?: string;
 };
-const Paginate = ({ page, setPage, pagination }: PaginateProps) => {
+const Paginate = ({ page, setPage, pagination, className }: PaginateProps) => {
   useEffect(() => {
-    if (pagination.total_pages !== undefined && page > pagination.total_pages) {
+    if (pagination?.total_pages !== undefined && page > pagination.total_pages) {
       setPage(pagination.total_pages);
     }
-  }, [page, pagination.total_pages, setPage]);
+  }, [page, pagination?.total_pages, setPage]);
 
   return (
-    <Pagination>
+    <Pagination className={className}>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            disabled={pagination.previous_page !== undefined}
+            disabled={pagination?.previous_page !== undefined}
             onClick={() =>
-              pagination.previous_page ? setPage(pagination.previous_page) : undefined
+              pagination?.previous_page !== undefined
+                ? setPage(pagination.previous_page)
+                : undefined
             }
           />
         </PaginationItem>
-        {pagination.total_pages !== undefined &&
+        {pagination?.total_pages !== undefined &&
           (pagination.total_pages > 1 && pagination.total_pages <= 5 ? (
             range(1, pagination.total_pages + 1).map((p) => (
               <PaginationItem key={p}>
@@ -95,11 +98,17 @@ const Paginate = ({ page, setPage, pagination }: PaginateProps) => {
             </>
           ))}
 
+        {pagination?.total_pages === undefined && (
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+        )}
+
         <PaginationItem>
           <PaginationNext
-            disabled={pagination.next_page !== undefined}
+            disabled={pagination?.next_page !== undefined}
             onClick={() =>
-              pagination.next_page !== undefined ? setPage(pagination.next_page) : undefined
+              pagination?.next_page !== undefined ? setPage(pagination.next_page) : undefined
             }
             data-testid="paginator-next"
           />

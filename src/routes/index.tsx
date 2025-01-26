@@ -56,11 +56,12 @@ const HomeComponent = () => {
     <>
       <div className="mt-2 mb-2 h-[40px]" />
       <DataTable columns={experimentsColumns} data={experiments.data.data} />
-      {pagination.status === 'valid' ? (
-        <Paginate page={page} setPage={setPage} pagination={pagination.data} />
-      ) : (
-        pagination.status
-      )}
+      <Paginate
+        page={page}
+        setPage={setPage}
+        pagination={'data' in pagination ? pagination.data : undefined}
+        className="mt-2"
+      />
     </>
   );
 };
