@@ -87,9 +87,7 @@
             }
           }
         },
-        "required": [
-          "items"
-        ]
+        "required": ["items"]
       },
       "Schema": {
         "type": "object",
@@ -105,10 +103,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "entity",
-          "level"
-        ],
+        "required": ["entity", "level"],
         "additionalProperties": false
       },
       "Experiment": {
@@ -141,11 +136,7 @@
             }
           }
         },
-        "required": [
-          "created_at",
-          "id",
-          "name"
-        ]
+        "required": ["created_at", "id", "name"]
       },
       "CreateExperiment": {
         "type": "object",
@@ -168,9 +159,7 @@
             }
           }
         },
-        "required": [
-          "name"
-        ]
+        "required": ["name"]
       },
       "Drift": {
         "type": "object",
@@ -186,11 +175,7 @@
           },
           "job_status": {
             "type": "string",
-            "enum": [
-              "Running",
-              "Completed",
-              "Failed"
-            ]
+            "enum": ["Running", "Completed", "Failed"]
           },
           "tags": {
             "type": "array",
@@ -217,25 +202,14 @@
             "readOnly": true
           }
         },
-        "required": [
-          "created_at",
-          "drift_detected",
-          "id",
-          "job_status",
-          "model",
-          "schema_version"
-        ]
+        "required": ["created_at", "drift_detected", "id", "job_status", "model", "schema_version"]
       },
       "CreateDrift": {
         "type": "object",
         "properties": {
           "job_status": {
             "type": "string",
-            "enum": [
-              "Running",
-              "Completed",
-              "Failed"
-            ]
+            "enum": ["Running", "Completed", "Failed"]
           },
           "tags": {
             "type": "array",
@@ -258,11 +232,7 @@
             "additionalProperties": {}
           }
         },
-        "required": [
-          "drift_detected",
-          "job_status",
-          "model"
-        ]
+        "required": ["drift_detected", "job_status", "model"]
       },
       "User": {
         "type": "object",
@@ -290,10 +260,7 @@
             "readOnly": true
           }
         },
-        "required": [
-          "created_at",
-          "id"
-        ]
+        "required": ["created_at", "id"]
       }
     },
     "responses": {
@@ -391,9 +358,7 @@
           }
         },
         "summary": "Return list of entitlements based on the provided OIDC token.",
-        "tags": [
-          "Entitlements"
-        ]
+        "tags": ["Entitlements"]
       }
     },
     "/experiment/search": {
@@ -458,9 +423,7 @@
           }
         ],
         "summary": "Get a paginated list of experiments based on the provided JSON query\nand MongoDB format.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       }
     },
     "/experiment": {
@@ -534,9 +497,7 @@
           }
         },
         "summary": "Create a new experiment record in the database.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       }
     },
     "/experiment/{experiment_id}": {
@@ -577,9 +538,7 @@
           }
         },
         "summary": "Retrieve an experiment by its ID from the database.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       },
       "put": {
         "responses": {
@@ -671,9 +630,7 @@
           }
         },
         "summary": "Update a experiment record with the given JSON data.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       },
       "delete": {
         "responses": {
@@ -745,9 +702,7 @@
           }
         },
         "summary": "Delete a experiment record from the database.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       },
       "parameters": [
         {
@@ -823,9 +778,7 @@
           }
         ],
         "summary": "Get a paginated list of drift Jobs based on the provided JSON query\nand MongoDB format.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       },
       "parameters": [
         {
@@ -910,9 +863,7 @@
           }
         },
         "summary": "Create a new drift Job record in the database.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       },
       "parameters": [
         {
@@ -964,9 +915,7 @@
           }
         },
         "summary": "Retrieve a drift job by its id from the database.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       },
       "put": {
         "responses": {
@@ -1058,9 +1007,7 @@
           }
         },
         "summary": "Update a drift job record with the given JSON data.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       },
       "delete": {
         "responses": {
@@ -1132,9 +1079,7 @@
           }
         },
         "summary": "Delete a drift job record from the database.",
-        "tags": [
-          "Experiments"
-        ]
+        "tags": ["Experiments"]
       },
       "parameters": [
         {
@@ -1259,9 +1204,7 @@
           }
         ],
         "summary": "Retrieve a paginated list of users based on the provided JSON query\nand MongoDB format.",
-        "tags": [
-          "Users"
-        ]
+        "tags": ["Users"]
       }
     },
     "/user": {
@@ -1346,9 +1289,7 @@
           }
         },
         "summary": "Register and create the token owner as new user.",
-        "tags": [
-          "Users"
-        ]
+        "tags": ["Users"]
       }
     },
     "/user/self": {
@@ -1409,9 +1350,7 @@
           }
         },
         "summary": "Retrieves the user information based on the provided auth token.",
-        "tags": [
-          "Users"
-        ]
+        "tags": ["Users"]
       },
       "put": {
         "responses": {
@@ -1470,9 +1409,7 @@
           }
         },
         "summary": "Updates the user information based on the provided auth token.",
-        "tags": [
-          "Users"
-        ]
+        "tags": ["Users"]
       }
     }
   },

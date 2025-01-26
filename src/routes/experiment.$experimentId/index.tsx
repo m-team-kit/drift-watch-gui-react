@@ -7,11 +7,6 @@ import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 
-export const Route = createFileRoute('/experiment/$experimentId/')({
-  // @ts-expect-error circular dependency?
-  component: RouteComponent,
-});
-
 const RouteComponent = () => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { experimentId } = Route.useParams();
@@ -82,3 +77,7 @@ const RouteComponent = () => {
     </Tabs>
   );
 };
+
+export const Route = createFileRoute('/experiment/$experimentId/')({
+  component: RouteComponent,
+});

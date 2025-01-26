@@ -1,25 +1,27 @@
 import experimentSearchPost from '@/api/functions/experimentSearchPost';
 import { experimentsColumns } from '@/components/experimentsTable';
+import Paginate from '@/components/Paginate';
 import { DataTable } from '@/components/ui/data-table';
+import getQueryPagination from '@/lib/getQueryPagination';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-
-export const Route = createFileRoute('/')({
-  // @ts-expect-error circular dependency?
-  component: HomeComponent,
-});
+import { useState } from 'react';
 
 const HomeComponent = () => {
+  const [page, setPage] = useState(1);
   const experiments = useQuery({
-    queryKey: ['experiments'],
+    queryKey: ['experiments', page],
     queryFn: () =>
       experimentSearchPost({
         body: {},
+        params: { page },
         config: {
           basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
         },
       }),
   });
+
+  const pagination = getQueryPagination(experiments);
 
   if (experiments.isLoading || experiments.isPending) {
     return <div>Loading...</div>;
@@ -54,6 +56,15 @@ const HomeComponent = () => {
     <>
       <div className="mt-2 mb-2 h-[40px]" />
       <DataTable columns={experimentsColumns} data={experiments.data.data} />
+      {pagination.status === 'valid' ? (
+        <Paginate page={page} setPage={setPage} pagination={pagination.data} />
+      ) : (
+        pagination.status
+      )}
     </>
   );
 };
+
+export const Route = createFileRoute('/')({
+  component: HomeComponent,
+});

@@ -5,11 +5,6 @@ import { Link, Outlet, createRootRoute } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import '../main.css';
 
-export const Route = createRootRoute({
-  // @ts-expect-error circular dependency?
-  component: RootComponent,
-});
-
 const queryClient = new QueryClient();
 
 const RootComponent = () => (
@@ -24,7 +19,9 @@ const RootComponent = () => (
           activeOptions={{ exact: true }}
         >
           Home
-        </Link>{' '}
+        </Link>
+        {/*
+        {' '}
         <Link
           to="/about"
           activeProps={{
@@ -33,11 +30,18 @@ const RootComponent = () => (
         >
           About
         </Link>
+        */}
       </div>
       <hr />
-      <Outlet />
+      <div className="p-2">
+        <Outlet />
+      </div>
       <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools position="right" />
     </TooltipProvider>
   </QueryClientProvider>
 );
+
+export const Route = createRootRoute({
+  component: RootComponent,
+});

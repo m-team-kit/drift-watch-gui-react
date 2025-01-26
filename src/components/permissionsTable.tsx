@@ -1,4 +1,4 @@
-import  { type Permission } from '@/api/models/index';
+import { type Permission } from '@/api/models/index';
 import columnSortButton from '@/components/columnSortButton';
 import { type ColumnDef } from '@tanstack/react-table';
 

@@ -1,4 +1,4 @@
-import  { type Experiment } from '@/api/models/index';
+import { type Experiment } from '@/api/models/index';
 import columnSortButton from '@/components/columnSortButton';
 import { Button } from '@/components/ui/button';
 import { Link } from '@tanstack/react-router';
@@ -22,7 +22,11 @@ export const experimentsColumns: ColumnDef<Experiment>[] = [
   {
     header: 'Actions',
     cell: (ctx) => (
-      <Button asChild>
+      <Button
+        asChild
+        disabled={!ctx.row.original.public}
+        variant={ctx.row.original.public ? undefined : 'ghost'}
+      >
         <Link href={`/experiment/${ctx.row.original.id}`}>
           <Eye /> View
         </Link>

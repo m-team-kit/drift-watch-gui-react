@@ -11,18 +11,11 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as ExperimentExperimentIdIndexImport } from './routes/experiment.$experimentId/index'
 import { Route as ExperimentExperimentIdDriftDriftIdImport } from './routes/experiment.$experimentId/drift.$driftId'
 
 // Create/Update Routes
-
-const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -55,13 +48,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
-      parentRoute: typeof rootRoute
-    }
     '/experiment/$experimentId/': {
       id: '/experiment/$experimentId/'
       path: '/experiment/$experimentId'
@@ -83,14 +69,12 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/experiment/$experimentId': typeof ExperimentExperimentIdIndexRoute
   '/experiment/$experimentId/drift/$driftId': typeof ExperimentExperimentIdDriftDriftIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/experiment/$experimentId': typeof ExperimentExperimentIdIndexRoute
   '/experiment/$experimentId/drift/$driftId': typeof ExperimentExperimentIdDriftDriftIdRoute
 }
@@ -98,7 +82,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/experiment/$experimentId/': typeof ExperimentExperimentIdIndexRoute
   '/experiment/$experimentId/drift/$driftId': typeof ExperimentExperimentIdDriftDriftIdRoute
 }
@@ -107,19 +90,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
     | '/experiment/$experimentId'
     | '/experiment/$experimentId/drift/$driftId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
     | '/experiment/$experimentId'
     | '/experiment/$experimentId/drift/$driftId'
   id:
     | '__root__'
     | '/'
-    | '/about'
     | '/experiment/$experimentId/'
     | '/experiment/$experimentId/drift/$driftId'
   fileRoutesById: FileRoutesById
@@ -127,14 +107,12 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
   ExperimentExperimentIdIndexRoute: typeof ExperimentExperimentIdIndexRoute
   ExperimentExperimentIdDriftDriftIdRoute: typeof ExperimentExperimentIdDriftDriftIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
   ExperimentExperimentIdIndexRoute: ExperimentExperimentIdIndexRoute,
   ExperimentExperimentIdDriftDriftIdRoute:
     ExperimentExperimentIdDriftDriftIdRoute,
@@ -151,16 +129,12 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/about",
         "/experiment/$experimentId/",
         "/experiment/$experimentId/drift/$driftId"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/about": {
-      "filePath": "about.tsx"
     },
     "/experiment/$experimentId/": {
       "filePath": "experiment.$experimentId/index.tsx"

@@ -1,4 +1,4 @@
-import  { type Drift } from '@/api/models/index';
+import { type Drift } from '@/api/models/index';
 import columnSortButton from '@/components/columnSortButton';
 import { Button } from '@/components/ui/button';
 import { Link } from '@tanstack/react-router';
@@ -12,7 +12,7 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (expe
   },
   {
     accessorKey: 'created_at',
-    header: 'Created',
+    header: columnSortButton('Created'),
     cell: (ctx) => new Date(ctx.row.original.created_at).toLocaleString(),
   },
   {
@@ -26,7 +26,7 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (expe
   },
   {
     accessorKey: 'drift_detected',
-    header: 'Drift',
+    header: columnSortButton('Drift'),
     cell: (ctx) => (ctx.row.original.drift_detected ? 'Yes' : 'No'),
   },
   {

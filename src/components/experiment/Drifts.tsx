@@ -1,22 +1,26 @@
 import experimentIdDriftSearchPost from '@/api/functions/experimentIdDriftSearchPost';
 import { type Experiment } from '@/api/models';
 import { driftsColumns } from '@/components/driftsTable';
+import Paginate from '@/components/Paginate';
 import { DataTable } from '@/components/ui/data-table';
+import getQueryPagination from '@/lib/getQueryPagination';
 import { useQuery } from '@tanstack/react-query';
-import { type FC, useMemo } from 'react';
+import { type FC, useMemo, useState } from 'react';
 
 type DriftsProps = {
   experiment: Experiment;
 };
 const Drifts: FC<DriftsProps> = ({ experiment }) => {
+  const [page, setPage] = useState(1);
   const columns = useMemo(() => driftsColumns(experiment.id), [experiment.id]);
 
   const drifts = useQuery({
-    queryKey: ['experimentDrift', experiment.id],
+    queryKey: ['experimentDrift', experiment.id, page],
     queryFn: () =>
       experimentIdDriftSearchPost({
         params: {
           experiment_id: experiment.id,
+          page,
         },
         body: {},
         config: {
@@ -24,6 +28,8 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
         },
       }),
   });
+
+  const pagination = getQueryPagination(drifts);
 
   if (drifts.isLoading || drifts.isPending) {
     return <div>Loading...</div>;
@@ -49,7 +55,16 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
     }
   }
 
-  return <DataTable columns={columns} data={drifts.data.data} />;
+  return (
+    <>
+      <DataTable columns={columns} data={drifts.data.data} />
+      {pagination.status === 'valid' ? (
+        <Paginate page={page} setPage={setPage} pagination={pagination.data} />
+      ) : (
+        pagination.status
+      )}
+    </>
+  );
 };
 
 export default Drifts;

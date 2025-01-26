@@ -12,6 +12,12 @@
     "allowJs": true,
     "checkJs": true
   },
-  "include": ["src", "eslint.config.ts", "postcss.config.ts", "tailwind.config.ts", "vite.config.ts"],
+  "include": [
+    "src",
+    "eslint.config.ts",
+    "postcss.config.ts",
+    "tailwind.config.ts",
+    "vite.config.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
