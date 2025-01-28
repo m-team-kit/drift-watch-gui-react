@@ -55,6 +55,7 @@
     "@tanstack/react-router": "^1.87.1",
     "@tanstack/react-table": "^8.20.6",
     "@tanstack/router-devtools": "^1.87.1",
+    "@thechristophe/web-oidc-client": "^0.0.20",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lodash": "^4.17.21",

@@ -1,4 +1,5 @@
 import experimentIdGet from '@/api/functions/experimentIdGet';
+import { useAuth } from '@/components/auth';
 import Drifts from '@/components/experiment/Drifts';
 import ExperimentPermissions from '@/components/experiment/ExperimentPermissions';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,8 @@ import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 
 const RouteComponent = () => {
+  const auth = useAuth();
+
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { experimentId } = Route.useParams();
   const experiment = useQuery({
@@ -18,8 +21,12 @@ const RouteComponent = () => {
         params: { experiment_id: experimentId },
         config: {
           basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
+          auth: {
+            bearer: auth.state.status === 'logged-in' ? auth.state.auth.token : undefined,
+          },
         },
       }),
+    enabled: auth.state.status !== 'loading',
   });
 
   if (experiment.isLoading || experiment.isPending) {

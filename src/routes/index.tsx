@@ -1,4 +1,5 @@
 import experimentSearchPost from '@/api/functions/experimentSearchPost';
+import { useAuth } from '@/components/auth';
 import { experimentsColumns } from '@/components/experimentsTable';
 import Paginate from '@/components/Paginate';
 import { DataTable } from '@/components/ui/data-table';
@@ -8,6 +9,8 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 
 const HomeComponent = () => {
+  const auth = useAuth();
+
   const [page, setPage] = useState(1);
   const experiments = useQuery({
     queryKey: ['experiments', page],
@@ -17,8 +20,12 @@ const HomeComponent = () => {
         params: { page },
         config: {
           basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
+          auth: {
+            bearer: auth.state.status === 'logged-in' ? auth.state.auth.token : undefined,
+          },
         },
       }),
+    enabled: auth.state.status !== 'loading',
   });
 
   const pagination = getQueryPagination(experiments);
