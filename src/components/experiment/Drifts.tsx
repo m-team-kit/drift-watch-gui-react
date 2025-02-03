@@ -1,16 +1,15 @@
 import experimentIdDriftSearchPost from '@/api/functions/experimentIdDriftSearchPost';
 import { type Experiment } from '@/api/models';
 import ButtonBadge from '@/components/ButtonBadge';
-import { driftsColumns } from '@/components/driftsTable';
+import { DriftsTable } from '@/components/driftsTable';
 import Paginate from '@/components/Paginate';
 import { Button } from '@/components/ui/button';
-import { DataTable } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import getQueryPagination from '@/lib/getQueryPagination';
 import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
-import { type Dispatch, type FC, type SetStateAction, useMemo, useState } from 'react';
+import { type Dispatch, type FC, type SetStateAction, useState } from 'react';
 
 const FilterInput = ({
   filter,
@@ -68,8 +67,6 @@ type DriftsProps = {
 };
 const Drifts: FC<DriftsProps> = ({ experiment }) => {
   const [page, setPage] = useState(1);
-  const columns = useMemo(() => driftsColumns(experiment.id), [experiment.id]);
-
   const [filter, setFilter] = useState<string[]>([]);
 
   const drifts = useQuery({
@@ -147,7 +144,7 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
   return (
     <>
       <FilterInput filter={filter} setFilter={setFilter} />
-      <DataTable columns={columns} data={drifts.data.data} />
+      <DriftsTable data={drifts.data.data} experimentId={experiment.id} />
       <Paginate
         page={page}
         setPage={setPage}

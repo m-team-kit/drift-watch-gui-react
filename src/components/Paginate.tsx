@@ -21,7 +21,7 @@ type PaginateProps = {
 const Paginate = ({ page, setPage, pagination, className }: PaginateProps) => {
   useEffect(() => {
     if (pagination?.total_pages !== undefined && page > pagination.total_pages) {
-      setPage(pagination.total_pages);
+      setPage(Math.max(1, pagination.total_pages));
     }
   }, [page, pagination?.total_pages, setPage]);
 
