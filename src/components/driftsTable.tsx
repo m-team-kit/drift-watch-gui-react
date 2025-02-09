@@ -13,32 +13,40 @@ import { Eye } from 'lucide-react';
 
 import EChartsDiagram from '@/components/echarts';
 import { Checkbox } from '@/components/ui/checkbox';
+import { signal, useComputed } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
 import { useMemo, useState } from 'react';
 import { TableContent } from './ui/data-table';
 
+export const selectedDrifts = signal<Array<Drift>>([]);
+
+type CheckProps = {
+  drift: Drift;
+};
+const Check = ({ drift }: CheckProps) => {
+  useSignals();
+  const isSelected = useComputed(() =>
+    selectedDrifts.value.some((select) => select.id === drift.id),
+  );
+
+  return (
+    <Checkbox
+      checked={isSelected.value}
+      onCheckedChange={() =>
+        isSelected.peek()
+          ? (selectedDrifts.value = selectedDrifts.value.filter((select) => select.id !== drift.id))
+          : (selectedDrifts.value = selectedDrifts.value.concat(drift))
+      }
+      aria-label="Select row"
+      className="me-3"
+    />
+  );
+};
+
 export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (experimentId) => [
   {
     id: 'select',
-    /*
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-     */
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="me-3"
-      />
-    ),
+    cell: ({ row }) => <Check drift={row.original} />,
     enableSorting: false,
     enableHiding: false,
   },
@@ -100,8 +108,6 @@ type DataTableProps = {
 export const DriftsTable = ({ data, experimentId }: DataTableProps) => {
   useSignals();
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [rowSelection, setRowSelection] = useState({});
-
   const columns = useMemo(() => driftsColumns(experimentId), [experimentId]);
 
   const table = useReactTable({
@@ -110,19 +116,31 @@ export const DriftsTable = ({ data, experimentId }: DataTableProps) => {
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
-      rowSelection,
     },
   });
 
   return (
     <>
       <TableContent table={table} columns={columns} />
-      {table.getIsSomeRowsSelected() && (
+      {selectedDrifts.value.length > 0 && (
         <div className="p-4 mx-auto max-w-[80ch]">
-          <EChartsDiagram drifts={table.getSelectedRowModel().rows.map((row) => row.original)} />
+          <div className="flex justify-center">
+            <span>
+              {selectedDrifts.value.length} drift{selectedDrifts.value.length > 1 ? 's' : null}{' '}
+              selected
+              <Button
+                variant="destructive"
+                className="ms-2"
+                size="sm"
+                onClick={() => (selectedDrifts.value = [])}
+              >
+                Clear
+              </Button>
+            </span>
+          </div>
+          <EChartsDiagram drifts={selectedDrifts.value} />
         </div>
       )}
     </>
