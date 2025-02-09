@@ -59,7 +59,7 @@ const RouteComponent = () => {
         <div className="flex mt-2 grow max-w-[80ch] justify-between">
           <div className="w-[10ch]">
             <Button asChild variant="outline" className="me-2">
-              <Link href="/">
+              <Link to="/">
                 <ArrowLeft /> Back
               </Link>
             </Button>

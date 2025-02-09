@@ -55,7 +55,7 @@ const RouteComponent = () => {
       <div className="flex justify-center mb-2 mt-2">
         <div className="grow max-w-[80ch] shrink-0">
           <Button asChild variant="outline">
-            <Link href={`/experiment/${experimentId}`}>
+            <Link to={`/experiment/${experimentId}`}>
               <ArrowLeft /> Back
             </Link>
           </Button>

@@ -27,7 +27,7 @@ export const experimentsColumns: ColumnDef<Experiment>[] = [
         disabled={!ctx.row.original.public}
         variant={ctx.row.original.public ? undefined : 'ghost'}
       >
-        <Link href={`/experiment/${ctx.row.original.id}`}>
+        <Link to={`/experiment/${ctx.row.original.id}`}>
           <Eye /> View
         </Link>
       </Button>

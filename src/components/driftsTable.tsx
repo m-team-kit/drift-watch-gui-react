@@ -84,7 +84,7 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (expe
     header: 'Actions',
     cell: (ctx) => (
       <Button asChild>
-        <Link href={`/experiment/${experimentId}/drift/${ctx.row.original.id}`}>
+        <Link to={`/experiment/${experimentId}/drift/${ctx.row.original.id}`}>
           <Eye /> View
         </Link>
       </Button>
