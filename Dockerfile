@@ -14,7 +14,6 @@ ENV VITE_OIDC_SCOPES=${OIDC_SCOPES}
 ENV VITE_OIDC_AUTHORITY=${OIDC_AUTHORITY}
 
 RUN npm install -g corepack@latest && corepack enable && corepack install && pnpm install
-ENV NODE_ENV=production
 RUN pnpm run build
 
 FROM flashspys/nginx-static:latest AS static
