@@ -1,24 +1,33 @@
 import experimentIdDriftSearchPost from '@/api/functions/experimentIdDriftSearchPost';
-import { type Experiment } from '@/api/models';
+import { type Drift, type Experiment } from '@/api/models';
 import ButtonBadge from '@/components/ButtonBadge';
 import { DriftsTable } from '@/components/driftsTable';
 import Paginate from '@/components/Paginate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import getQueryPagination from '@/lib/getQueryPagination';
 import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { type Dispatch, type FC, type SetStateAction, useState } from 'react';
 
-const FilterInput = ({
-  filter,
-  setFilter,
-}: {
-  filter: string[];
-  setFilter: Dispatch<SetStateAction<string[]>>;
-}) => {
+type FilterInputProps = {
+  tags: string[];
+  setTags: Dispatch<SetStateAction<string[]>>;
+  completion: Drift['job_status'] | undefined;
+  setCompletion: Dispatch<SetStateAction<Drift['job_status'] | undefined>>;
+};
+const FilterInput = ({ tags, setTags, completion, setCompletion }: FilterInputProps) => {
   const [newFilter, setNewFilter] = useState('');
+  const [key, setKey] = useState(+new Date());
 
   return (
     <div className="mb-2 flex justify-center">
@@ -31,7 +40,7 @@ const FilterInput = ({
           onChange={(e) => setNewFilter(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              setFilter([...filter, newFilter]);
+              setTags([...tags, newFilter]);
               setNewFilter('');
             }
           }}
@@ -40,23 +49,54 @@ const FilterInput = ({
         <Button
           className="ms-2"
           onClick={() => {
-            setFilter([...filter, newFilter]);
+            if (newFilter.length === 0) {
+              return;
+            }
+            setTags([...tags, newFilter]);
             setNewFilter('');
           }}
+          disabled={newFilter.length === 0}
           size="sm"
         >
           <Plus /> <span className="sr-only">Add Tag</span>
         </Button>
-        <div className="ms-2 flex gap-1">
-          {filter.map((f) => (
+        <div className="ms-2 flex gap-1 grow min-w-1">
+          {tags.map((f) => (
             <ButtonBadge
               key={f}
-              onClick={() => setFilter((filters) => filters.filter((filter) => filter !== f))}
+              onClick={() => setTags((filters) => filters.filter((filter) => filter !== f))}
             >
               {f}
             </ButtonBadge>
           ))}
         </div>
+        <Select
+          key={key}
+          value={completion}
+          onValueChange={(v) => setCompletion(v as Drift['job_status'])}
+        >
+          <SelectTrigger className="grow-0 shrink w-[15ch]">
+            <SelectValue placeholder="Completion" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Running">Running</SelectItem>
+            <SelectItem value="Completed">Completed</SelectItem>
+            <SelectItem value="Failed">Failed</SelectItem>
+            <SelectSeparator />
+            <Button
+              className="w-full px-2"
+              variant="secondary"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setCompletion(undefined);
+                setKey(+new Date());
+              }}
+            >
+              Clear
+            </Button>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
@@ -67,10 +107,13 @@ type DriftsProps = {
 };
 const Drifts: FC<DriftsProps> = ({ experiment }) => {
   const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState<string[]>([]);
+  const [tagsFilter, setTagsFilter] = useState<string[]>([]);
+  const [completionFilter, setCompletionFilter] = useState<Drift['job_status'] | undefined>(
+    undefined,
+  );
 
   const drifts = useQuery({
-    queryKey: ['experimentDrift', experiment.id, page, filter.join(',')],
+    queryKey: ['experimentDrift', experiment.id, page, tagsFilter.join(','), completionFilter],
     queryFn: () =>
       experimentIdDriftSearchPost({
         params: {
@@ -78,10 +121,13 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
           page,
         },
         body: {
-          ...(filter.length > 0 && {
+          ...(tagsFilter.length > 0 && {
             tags: {
-              $all: filter,
+              $all: tagsFilter,
             },
+          }),
+          ...(completionFilter != null && {
+            job_status: completionFilter,
           }),
         },
         config: {
@@ -94,56 +140,37 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
 
   // TODO: deduplicate the <FilterInput filter={filter} setFilter={setFilter} /> in all the returns
 
-  if (drifts.isLoading || drifts.isPending) {
+  if (drifts.data === undefined || drifts.data.status !== 200) {
     return (
       <>
-        <FilterInput filter={filter} setFilter={setFilter} />
-        <div>Loading...</div>
+        <FilterInput
+          tags={tagsFilter}
+          setTags={setTagsFilter}
+          completion={completionFilter}
+          setCompletion={setCompletionFilter}
+        />
+        {(drifts.isLoading || drifts.isPending) && <div>Loading...</div>}
+        {drifts.isError && <div>Error: {drifts.error.message}</div>}
+        {drifts.data?.status === -1 && <div>Network error</div>}
+        {drifts.data?.status === 422 && <div>Malformed query</div>}
+        {drifts.data?.status === 'default' && (
+          <div>
+            Unknown error
+            {drifts.data.data.message}
+          </div>
+        )}
       </>
     );
-  }
-
-  if (drifts.isError) {
-    return (
-      <>
-        <FilterInput filter={filter} setFilter={setFilter} />
-        <div>Error: {drifts.error.message}</div>
-      </>
-    );
-  }
-
-  if (drifts.data.status !== 200) {
-    switch (drifts.data.status) {
-      case -1:
-        return (
-          <>
-            <FilterInput filter={filter} setFilter={setFilter} />
-            <div>Network error</div>
-          </>
-        );
-      case 422:
-        return (
-          <>
-            <FilterInput filter={filter} setFilter={setFilter} />
-            <div>Malformed query</div>
-          </>
-        );
-      case 'default':
-        return (
-          <>
-            <FilterInput filter={filter} setFilter={setFilter} />
-            <div>
-              Unknown error
-              {drifts.data.data.message}
-            </div>
-          </>
-        );
-    }
   }
 
   return (
     <>
-      <FilterInput filter={filter} setFilter={setFilter} />
+      <FilterInput
+        tags={tagsFilter}
+        setTags={setTagsFilter}
+        completion={completionFilter}
+        setCompletion={setCompletionFilter}
+      />
       <DriftsTable data={drifts.data.data} experimentId={experiment.id} />
       <Paginate
         page={page}
