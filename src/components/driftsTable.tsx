@@ -7,6 +7,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   type SortingState,
+  type Table,
   useReactTable,
 } from '@tanstack/react-table';
 import { Eye } from 'lucide-react';
@@ -19,6 +20,46 @@ import { useMemo, useState } from 'react';
 import { TableContent } from './ui/data-table';
 
 export const selectedDrifts = signal<Array<Drift>>([]);
+
+type HeadCheckProps = {
+  table: Table<Drift>;
+};
+const HeadCheck = ({ table }: HeadCheckProps) => {
+  useSignals();
+
+  let all = true;
+  let some = false;
+  for (const row of table.getCenterRows()) {
+    if (!selectedDrifts.value.some((drift) => drift.id === row.original.id)) {
+      all = false;
+    } else {
+      some = true;
+    }
+  }
+
+  return (
+    <Checkbox
+      checked={all || (some && 'indeterminate')}
+      onCheckedChange={() => {
+        if (all) {
+          // remove rows from selected
+          selectedDrifts.value = selectedDrifts.value.filter(
+            (drift) => !table.getCenterRows().some((row) => row.original.id === drift.id),
+          );
+        } else {
+          // add rows without duplicate to selected
+          selectedDrifts.value = Array.from(
+            new Set<Drift>([
+              ...selectedDrifts.value,
+              ...table.getCenterRows().map((row) => row.original),
+            ]),
+          );
+        }
+      }}
+      aria-label="Select all"
+    />
+  );
+};
 
 type CheckProps = {
   drift: Drift;
@@ -46,6 +87,7 @@ const Check = ({ drift }: CheckProps) => {
 export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (experimentId) => [
   {
     id: 'select',
+    header: ({ table }) => <HeadCheck table={table} />,
     cell: ({ row }) => <Check drift={row.original} />,
     enableSorting: false,
     enableHiding: false,
@@ -125,10 +167,10 @@ export const DriftsTable = ({ data, experimentId }: DataTableProps) => {
 
   return (
     <>
-      <TableContent table={table} columns={columns} />
       {selectedDrifts.value.length > 0 && (
-        <div className="p-4 mx-auto max-w-[80ch]">
-          <div className="flex justify-center">
+        <div className="mx-auto max-w-[80ch] mb-2">
+          <EChartsDiagram drifts={selectedDrifts.value} />
+          <div className="flex justify-center mt-2">
             <span>
               {selectedDrifts.value.length} drift{selectedDrifts.value.length > 1 ? 's' : null}{' '}
               selected
@@ -142,9 +184,9 @@ export const DriftsTable = ({ data, experimentId }: DataTableProps) => {
               </Button>
             </span>
           </div>
-          <EChartsDiagram drifts={selectedDrifts.value} />
         </div>
       )}
+      <TableContent table={table} columns={columns} />
     </>
   );
 };
