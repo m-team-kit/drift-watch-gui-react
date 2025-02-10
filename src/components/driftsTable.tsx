@@ -50,6 +50,7 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (expe
     enableSorting: false,
     enableHiding: false,
   },
+  /*
   {
     accessorKey: 'id',
     header: 'ID',
@@ -64,6 +65,7 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (expe
       </div>
     ),
   },
+   */
   {
     accessorKey: 'created_at',
     header: columnSortButton('Created'),
