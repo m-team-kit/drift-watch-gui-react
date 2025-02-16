@@ -18,4 +18,7 @@ RUN pnpm run build
 
 FROM flashspys/nginx-static:latest AS static
 COPY --from=build /app/dist /static
+# https://github.com/docker-nginx-static/docker-nginx-static/blob/main/Dockerfile#L135C28-L135C58
+# copy nginx config that always tries index.html (because SPA)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
