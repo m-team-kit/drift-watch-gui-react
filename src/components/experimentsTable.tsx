@@ -1,9 +1,28 @@
 import { type Experiment } from '@/api/models/index';
 import columnSortButton from '@/components/columnSortButton';
 import { Button } from '@/components/ui/button';
+import { useUser } from '@/components/UserContext';
 import { Link } from '@tanstack/react-router';
 import { type ColumnDef } from '@tanstack/react-table';
 import { Eye } from 'lucide-react';
+
+type ViewExperimentButtonProps = { experiment: Experiment };
+const ViewExperimentButton = ({ experiment }: ViewExperimentButtonProps) => {
+  const user = useUser();
+
+  const canView =
+    experiment.public ||
+    (user.status === 'ok' &&
+      experiment.permissions?.some((perm) => perm.entity === user.id /* && perm.level*/));
+
+  return (
+    <Button asChild disabled={!canView} variant={canView ? undefined : 'ghost'}>
+      <Link to={`/experiment/${experiment.id}`}>
+        <Eye /> View
+      </Link>
+    </Button>
+  );
+};
 
 export const experimentsColumns: ColumnDef<Experiment>[] = [
   {
@@ -21,16 +40,6 @@ export const experimentsColumns: ColumnDef<Experiment>[] = [
   },
   {
     header: 'Actions',
-    cell: (ctx) => (
-      <Button
-        asChild
-        disabled={!ctx.row.original.public}
-        variant={ctx.row.original.public ? undefined : 'ghost'}
-      >
-        <Link to={`/experiment/${ctx.row.original.id}`}>
-          <Eye /> View
-        </Link>
-      </Button>
-    ),
+    cell: (ctx) => <ViewExperimentButton experiment={ctx.row.original} />,
   },
 ];

@@ -22,11 +22,11 @@ const RouteComponent = () => {
         config: {
           basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
           auth: {
-            bearer: auth.state.status === 'logged-in' ? auth.state.auth.token : undefined,
+            bearer: auth.status === 'logged-in' ? auth.auth.token : undefined,
           },
         },
       }),
-    enabled: auth.state.status !== 'loading',
+    enabled: auth.status !== 'loading',
   });
 
   if (experiment.isLoading || experiment.isPending) {

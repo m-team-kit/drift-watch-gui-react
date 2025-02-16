@@ -1,6 +1,7 @@
 import AuthProvider from '@/components/auth';
 import LoginButton from '@/components/LoginButton';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { UserProvider } from '@/components/UserContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Link, Outlet, createRootRoute } from '@tanstack/react-router';
 import { lazy } from 'react';
@@ -23,31 +24,40 @@ const QueryDevTools =
         })),
       );
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 const RootComponent = () => (
   <AuthProvider>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <div className="p-2 flex gap-2 text-lg justify-between">
-          <Link
-            to="/"
-            activeProps={{
-              className: 'font-bold',
-            }}
-            activeOptions={{ exact: true }}
-          >
-            Home
-          </Link>
-          <LoginButton />
-        </div>
-        <hr />
-        <div className="p-2">
-          <Outlet />
-        </div>
-        <RouterDevtools />
-        <QueryDevTools />
-      </TooltipProvider>
+      <UserProvider>
+        <TooltipProvider>
+          <div className="p-2 flex gap-2 text-lg justify-between">
+            <Link
+              to="/"
+              activeProps={{
+                className: 'font-bold',
+              }}
+              activeOptions={{ exact: true }}
+            >
+              Home
+            </Link>
+            <LoginButton />
+          </div>
+          <hr />
+          <div className="p-2">
+            <Outlet />
+          </div>
+          <RouterDevtools />
+          <QueryDevTools />
+        </TooltipProvider>
+      </UserProvider>
     </QueryClientProvider>
   </AuthProvider>
 );

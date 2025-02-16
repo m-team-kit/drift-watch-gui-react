@@ -20,9 +20,7 @@ type AuthFunctions = {
   logout: () => Promise<void>;
 };
 
-type AuthContextData = {
-  state: Status;
-} & AuthFunctions;
+type AuthContextData = Status & AuthFunctions;
 
 const AuthContext = createContext<AuthContextData | undefined>(undefined);
 
@@ -156,7 +154,7 @@ const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        state: status,
+        ...status,
         ...callbacks,
       }}
     >

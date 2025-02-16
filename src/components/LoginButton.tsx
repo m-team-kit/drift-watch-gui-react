@@ -1,9 +1,11 @@
 import { useAuth } from '@/components/auth';
+import { useUser } from '@/components/UserContext';
 
 const LoginButton = () => {
   const auth = useAuth();
+  const user = useUser();
 
-  if (auth.state.status !== 'logged-in') {
+  if (auth.status !== 'logged-in') {
     return (
       <button className="navbar-button" onClick={() => auth.login()}>
         Login
@@ -11,12 +13,16 @@ const LoginButton = () => {
     );
   }
 
+  const name =
+    (user.status === 'ok' ? user.email : undefined) ??
+    auth.user.name ??
+    auth.user.preferred_username ??
+    auth.user.email ??
+    'unknown';
+
   return (
     <button className="navbar-button" onClick={() => auth.logout()}>
-      {auth.state.user.name ??
-        auth.state.user.preferred_username ??
-        auth.state.user.email ??
-        'unknown'}{' '}
+      {user.status === 'error' ? user.message : user.status === 'loading' ? 'Loading...' : name}{' '}
       (Logout)
     </button>
   );
