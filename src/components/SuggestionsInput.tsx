@@ -61,8 +61,8 @@ const SuggestionsInput = ({
               <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[200px]">
-            <ScrollArea className="h-[200px]">
+          <DropdownMenuContent className="w-[12rem]">
+            <ScrollArea className="max-h-8">
               <DropdownMenuItem onSelect={() => updateValue(Time)} className="text-blue-400">
                 Time
               </DropdownMenuItem>
