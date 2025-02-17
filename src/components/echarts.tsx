@@ -57,7 +57,7 @@ const getSubkeyName = (keyPath: string): string => {
   return keys[keys.length - 1];
 };
 
-type DataPoint = { x: number; y: number; drift: Drift };
+type DataPoint = { x: number | Date; y: number; drift: Drift };
 type RejectedResult = { result: Drift; reason: string };
 
 const resolveSymbol = (entry: string | symbol) => {
@@ -77,7 +77,7 @@ const resolve = (drift: Drift, entry: string | symbol): unknown => {
 
   switch (entry) {
     case Time:
-      return +new Date(value as string);
+      return new Date(value as string);
   }
 
   return value;
@@ -95,7 +95,7 @@ const generateDataPoints = (
     const x = resolve(drift, xAxis);
     const y = resolve(drift, yAxis);
 
-    if (typeof x !== 'number') {
+    if (typeof x !== 'number' && !(x instanceof Date)) {
       rejected.push({ result: drift, reason: 'X axis value not numeric' });
       continue;
     }
@@ -105,8 +105,6 @@ const generateDataPoints = (
     }
     collection.push({ x, y, drift });
   }
-
-  collection.sort((a: DataPoint, b: DataPoint) => a.x - b.x);
 
   return [collection, rejected];
 };
@@ -146,64 +144,6 @@ const Regression = {
 } as const;
 type Regression = (typeof Regression)[keyof typeof Regression];
 
-type RegressionSelectProps = {
-  setRegressionMode: (mode: Regression) => void;
-  regressionMode: Regression;
-  disabled?: boolean;
-  polyRegressionOrder: number;
-  setPolyRegressionOrder: (num: number) => void;
-  className?: string;
-};
-const RegressionSelect: FC<RegressionSelectProps> = ({
-  setRegressionMode,
-  regressionMode,
-  disabled = false,
-  polyRegressionOrder,
-  setPolyRegressionOrder,
-  className,
-}) => (
-  <div className={cn('grid w-full max-w-sm items-center gap-1.5', className)}>
-    <div>
-      <Label>Regression</Label>
-      {disabled || (
-        <Select
-          onValueChange={(e) => setRegressionMode(e as Regression)}
-          value={regressionMode}
-          disabled={disabled}
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={Regression.Linear}>Linear</SelectItem>
-            <SelectItem value={Regression.Exponential}>Exponential</SelectItem>
-            <SelectItem value={Regression.Polynomial}>Polynomial</SelectItem>
-            <SelectItem value={Regression.Logarithmic}>Logarithmic</SelectItem>
-          </SelectContent>
-        </Select>
-      )}
-    </div>
-    {regressionMode === Regression.Polynomial && (
-      <Select
-        onValueChange={(e) => setPolyRegressionOrder(+e)}
-        value={polyRegressionOrder.toString()}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Regression order" />
-        </SelectTrigger>
-        {/* 1 - 10 */}
-        <SelectContent>
-          {[...Array(10).keys()].map((n) => (
-            <SelectItem value={(n + 1).toString()} key={n + 1}>
-              {n + 1}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    )}
-  </div>
-);
-
 const saveDiagramAsPng = (transparent = false) => {
   // TODO: ref?
   const canvasElement = document.querySelector('.echarts-for-react canvas');
@@ -241,18 +181,8 @@ type EChartsDiagramProps = {
   drifts: Drift[];
 };
 
-const timestamp = (t: number) => new Date(t).toLocaleString();
-const timestampFormatter: Extract<EChartsOption['tooltip'], Array<unknown>>[number]['formatter'] = (
-  param,
-) => {
-  const params = Array.isArray(param) ? param : [param];
-  return params
-    .map((p) => {
-      const [x, y] = p.data as number[];
-      return `<span style="font-weight: 800">${timestamp(x)}</span>: ${y}`;
-    })
-    .join('<br/>');
-};
+const timestamp = (t: number | Date) =>
+  t instanceof Date ? t.toLocaleString() : new Date(t).toLocaleString();
 
 /**
  * Chart displaying a line diagram following the drifts' ordering
@@ -272,8 +202,6 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
   const [yAxis, setYAxis] = useState<string | symbol>('');
   const updateYAxis = useMemo(() => debounce(setYAxis, 250), [setYAxis]);
 
-  const labelSet = new Set<number>();
-
   let dataPoints: DataPoint[] = [];
   let rejected: RejectedResult[] = [];
 
@@ -283,52 +211,60 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
   // if axes entered, parse data by x and y
   if (xAxisSet && yAxisSet) {
     [dataPoints, rejected] = generateDataPoints(drifts, xAxis, yAxis);
-    for (const dataPoint of dataPoints) {
-      labelSet.add(dataPoint.x);
-    }
   }
 
   const datasets: EChartsOption['dataset'] = [];
   const series: EChartsOption['series'] = [];
-  datasets.push({ source: dataPoints.map((d) => [d.x, d.y]) });
+  datasets.push({
+    //source: dataPoints.filter((data, i) => i % 2).map((d) => [d.x, d.y]),
+    source: dataPoints.filter((data) => data.drift.drift_detected).map((d) => [d.x, d.y]),
+  });
   series.push({
     type: graphMode,
-    //name: dataSet.site.name,
-    datasetIndex: datasets.length - 1,
+    name: 'detected',
+    datasetIndex: 0,
+    color: '#ff2020',
   });
-
-  const regressionDataset = {
-    transform: {
-      type: 'ecStat:regression',
-      config: {
-        method: regressionMode,
-        // 'end' by default
-        // formulaOn: 'start'
-        order: polyRegressionOrder,
-      },
-    },
-  };
-  const regressionSeries = {
-    name: 'Regression',
-    type: 'line',
-    smooth: true,
-    datasetIndex: datasets.length,
-    symbolSize: 0.1,
-    symbol: 'circle',
-    label: { show: true, fontSize: 16 },
-    labelLayout: {
-      rotate: 0,
-      x: '15%',
-      y: '010%',
-      fontSize: 12,
-    },
-    encode: { label: 2, tooltip: 1 },
-  } as const;
+  datasets.push({
+    //source: dataPoints.filter((data, i) => (i + 1) % 2).map((d) => [d.x, d.y]),
+    source: dataPoints.filter((data) => !data.drift.drift_detected).map((d) => [d.x, d.y]),
+  });
+  series.push({
+    type: graphMode,
+    name: 'not detected',
+    datasetIndex: 1,
+    color: '#30e030',
+  });
 
   const enableRegression = regressionMode !== Regression.None;
   if (enableRegression) {
-    datasets.push(regressionDataset);
-    series.push(regressionSeries);
+    datasets.push({
+      transform: {
+        type: 'ecStat:regression',
+        config: {
+          method: regressionMode,
+          // 'end' by default
+          // formulaOn: 'start'
+          order: polyRegressionOrder,
+        },
+      },
+    });
+    series.push({
+      name: 'Regression',
+      type: 'line',
+      smooth: true,
+      datasetIndex: datasets.length - 1,
+      symbolSize: 0.1,
+      symbol: 'circle',
+      label: { show: true, fontSize: 16 },
+      labelLayout: {
+        rotate: 0,
+        x: '15%',
+        y: '010%',
+        fontSize: 12,
+      },
+      encode: { label: 2, tooltip: 1 },
+    });
   }
 
   const xAxisOptions: EChartsOption['xAxis'] =
@@ -343,21 +279,24 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
           name: getSubkeyName(resolveSymbol(xAxis)),
         }
       : {
-          ...(xAxis !== Time
-            ? {
-                splitLine: {
-                  lineStyle: {
-                    type: 'dashed',
-                  },
-                },
-              }
-            : { splitLine: { show: false } }),
+          ...(xAxis !== Time && {
+            splitLine: {
+              lineStyle: {
+                type: 'dashed',
+              },
+            },
+          }),
           ...(xAxis === Time && {
+            splitLine: { show: false },
             scale: true,
-            min: ({ min }) => min,
-            max: ({ max }) => max,
             axisLabel: {
               formatter: timestamp,
+              rotate: 22.5,
+            },
+            axisPointer: {
+              label: {
+                formatter: (v) => (typeof v.value === 'string' ? v.value : timestamp(v.value)),
+              },
             },
           }),
           type: 'value',
@@ -365,15 +304,15 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
         };
 
   const options: EChartsOption = {
-    dataset: [...datasets],
+    legend: {
+      show: true,
+    },
+    dataset: datasets,
     tooltip: {
       trigger: 'axis',
       axisPointer: {
         type: 'cross',
       },
-      ...(xAxis === Time && {
-        formatter: timestampFormatter,
-      }),
     },
     xAxis: xAxisOptions,
     yAxis: {
@@ -384,34 +323,71 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
       },
       type: yAxisMode === Scale.Logarithmic ? 'log' : 'value',
       name: getSubkeyName(resolveSymbol(yAxis)),
-      nameRotate: 90,
-      axisLabel: {},
     },
-    series: [...series],
+    series,
     animation: false,
   };
 
+  const input = cn('grid w-full max-w-sm items-center gap-1.5');
+
   return (
     <>
-      <div className="columns-1 md:columns-2 mb-2">
-        <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
-          <div>
-            <Label>Graph mode</Label>
-            <Select onValueChange={(e) => setGraphMode(e as GraphMode)} value={graphMode}>
-              <SelectTrigger>
-                <SelectValue placeholder="Graph mode" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={GraphMode.Scatter}>Scatter</SelectItem>
-                <SelectItem value={GraphMode.Line}>Line</SelectItem>
-                <SelectItem value={GraphMode.Bar}>Bar</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-1 gap-y-3">
+        <div className={input}>
+          <Label>Graph mode</Label>
+          <Select onValueChange={(e) => setGraphMode(e as GraphMode)} value={graphMode}>
+            <SelectTrigger>
+              <SelectValue placeholder="Graph mode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={GraphMode.Scatter}>Scatter</SelectItem>
+              <SelectItem value={GraphMode.Line}>Line</SelectItem>
+              <SelectItem value={GraphMode.Bar}>Bar</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      </div>
-      <div className="columns-1 md:columns-2 mb-2">
-        <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
+        <div className={input}>
+          <Label>Regression</Label>
+          <Select
+            onValueChange={(e) => {
+              const { type, order } = JSON.parse(e) as { type: string; order?: number };
+              setRegressionMode(type as Regression);
+              if (order !== undefined) {
+                setPolyRegressionOrder(order);
+              }
+            }}
+            value={JSON.stringify({
+              type: regressionMode,
+              order: regressionMode === Regression.Polynomial ? polyRegressionOrder : undefined,
+            })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={JSON.stringify({ type: Regression.Linear })}>Linear</SelectItem>
+              <SelectItem value={JSON.stringify({ type: Regression.Exponential })}>
+                Exponential
+              </SelectItem>
+              <SelectItem value={JSON.stringify({ type: Regression.Logarithmic })}>
+                Logarithmic
+              </SelectItem>
+              <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 2 })}>
+                2-Polynomial
+              </SelectItem>
+              <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 3 })}>
+                3-Polynomial
+              </SelectItem>
+              <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 4 })}>
+                4-Polynomial
+              </SelectItem>
+              <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 5 })}>
+                5-Polynomial
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className={input}>
           <Label>X Scale</Label>
           <Select onValueChange={(e) => setXAxisMode(e as Scale)} value={xAxisMode}>
             <SelectTrigger>
@@ -423,7 +399,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
             </SelectContent>
           </Select>
         </div>
-        <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
+        <div className={input}>
           <Label>Y Scale</Label>
           <Select onValueChange={(e) => setYAxisMode(e as Scale)} value={yAxisMode}>
             <SelectTrigger>
@@ -435,18 +411,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
             </SelectContent>
           </Select>
         </div>
-      </div>
-      <div className="columns-1 md:columns-2 mb-2">
-        <RegressionSelect
-          setRegressionMode={setRegressionMode}
-          regressionMode={regressionMode}
-          polyRegressionOrder={polyRegressionOrder}
-          setPolyRegressionOrder={setPolyRegressionOrder}
-          className="mb-2"
-        />
-      </div>
-      <div className="columns-1 md:columns-2">
-        <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
+        <div className={input}>
           <Label htmlFor="x-axis">X Axis:</Label>
           <SuggestionsInput
             id="x-axis"
@@ -455,7 +420,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
             suggestions={[]}
           />
         </div>
-        <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
+        <div className={input}>
           <Label htmlFor="y-axis">Y Axis:</Label>
           <SuggestionsInput
             id="y-axis"
@@ -486,7 +451,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
           <div
             style={{
               resize: 'both',
-              height: '30em',
+              height: '30rem',
               maxWidth: '100%',
               minWidth: '500px',
               minHeight: '200px',
@@ -500,8 +465,8 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
               notMerge
             />
           </div>
-          <div className="flex justify-end">
-            <Button variant="secondary" onClick={() => saveDiagramAsPng(false)}>
+          <div className="flex justify-end mt-2">
+            <Button variant="secondary" onClick={() => saveDiagramAsPng(false)} className="me-2">
               <Save /> Save as PNG
             </Button>
 
