@@ -1,5 +1,5 @@
 import experimentIdGet from '@/api/functions/experimentIdGet';
-import { useAuth } from '@/components/auth';
+import { useAuth } from '@/components/AuthContext';
 import Drifts from '@/components/experiment/Drifts';
 import ExperimentPermissions from '@/components/experiment/ExperimentPermissions';
 import { Button } from '@/components/ui/button';

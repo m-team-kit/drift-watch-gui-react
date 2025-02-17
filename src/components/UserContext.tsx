@@ -2,7 +2,7 @@ import userPost from '@/api/functions/userPost';
 import userSelfGet from '@/api/functions/userSelfGet';
 import userSelfPut from '@/api/functions/userSelfPut';
 import { type User } from '@/api/models/index';
-import { useAuth } from '@/components/auth';
+import { useAuth } from '@/components/AuthContext';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createContext, type PropsWithChildren, useContext, useEffect, useState } from 'react';
 

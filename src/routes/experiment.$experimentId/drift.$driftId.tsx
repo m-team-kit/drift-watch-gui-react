@@ -1,5 +1,5 @@
 import experimentIdDriftIdGet from '@/api/functions/experimentIdDriftIdGet';
-import { useAuth } from '@/components/auth';
+import { useAuth } from '@/components/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';

@@ -1,5 +1,5 @@
 import experimentSearchPost from '@/api/functions/experimentSearchPost';
-import { useAuth } from '@/components/auth';
+import { useAuth } from '@/components/AuthContext';
 import { experimentsColumns } from '@/components/experimentsTable';
 import Paginate from '@/components/Paginate';
 import { DataTable } from '@/components/ui/data-table';
@@ -61,7 +61,6 @@ const HomeComponent = () => {
 
   return (
     <>
-      <div className="mt-2 mb-2 h-[40px]" />
       <DataTable columns={experimentsColumns} data={experiments.data.data} />
       <Paginate
         page={page}

@@ -1,4 +1,4 @@
-import AuthProvider from '@/components/auth';
+import AuthProvider from '@/components/AuthContext';
 import LoginButton from '@/components/LoginButton';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { UserProvider } from '@/components/UserContext';

@@ -1,4 +1,4 @@
-import { useAuth } from '@/components/auth';
+import { useAuth } from '@/components/AuthContext';
 import { useUser } from '@/components/UserContext';
 
 const LoginButton = () => {

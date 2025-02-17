@@ -7,7 +7,8 @@ import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 
 import { type Drift } from '@/api/models';
-import { Input } from '@/components/ui/input';
+import { Time } from '@/components/dataSymbols';
+import SuggestionsInput from '@/components/SuggestionsInput';
 import {
   Select,
   SelectContent,
@@ -16,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { type EChartsOption } from 'echarts';
 import ecStat from 'echarts-stat';
 import { debounce } from 'lodash';
 import { Save } from 'lucide-react';
@@ -58,27 +60,50 @@ const getSubkeyName = (keyPath: string): string => {
 type DataPoint = { x: number; y: number; drift: Drift };
 type RejectedResult = { result: Drift; reason: string };
 
+const resolveSymbol = (entry: string | symbol) => {
+  if (typeof entry === 'string') {
+    return entry;
+  }
+  switch (entry) {
+    case Time:
+      return 'created_at';
+  }
+  return 'unknown';
+};
+
+const resolve = (drift: Drift, entry: string | symbol): unknown => {
+  const key = resolveSymbol(entry);
+  const value = fetchSubkey((typeof entry === 'symbol' ? drift : drift.parameters) as Json, key);
+
+  switch (entry) {
+    case Time:
+      return +new Date(value as string);
+  }
+
+  return value;
+};
+
 const generateDataPoints = (
   drifts: Drift[],
-  xAxis: string,
-  yAxis: string,
+  xAxis: string | symbol,
+  yAxis: string | symbol,
 ): [DataPoint[], RejectedResult[]] => {
   const rejected: { result: Drift; reason: string }[] = [];
   const collection: DataPoint[] = [];
 
   for (const drift of drifts) {
-    const x = fetchSubkey(drift.parameters as Json, xAxis);
-    const y = fetchSubkey(drift.parameters as Json, yAxis);
+    const x = resolve(drift, xAxis);
+    const y = resolve(drift, yAxis);
 
-    if (typeof fetchSubkey(drift.parameters as Json, xAxis) !== 'number') {
+    if (typeof x !== 'number') {
       rejected.push({ result: drift, reason: 'X axis value not numeric' });
       continue;
     }
-    if (typeof fetchSubkey(drift.parameters as Json, yAxis) !== 'number') {
+    if (typeof y !== 'number') {
       rejected.push({ result: drift, reason: 'Y axis value not numeric' });
       continue;
     }
-    collection.push({ x: x as number, y: y as number, drift });
+    collection.push({ x, y, drift });
   }
 
   collection.sort((a: DataPoint, b: DataPoint) => a.x - b.x);
@@ -102,23 +127,24 @@ echarts.registerTransform(ecStat.transform.regression);
 const Scale = {
   Linear: 'linear',
   Logarithmic: 'logarithmic',
-};
+} as const;
 type Scale = (typeof Scale)[keyof typeof Scale];
 
 const GraphMode = {
   Scatter: 'scatter',
   Line: 'line',
   Bar: 'bar',
-};
+} as const;
 type GraphMode = (typeof GraphMode)[keyof typeof GraphMode];
 
-enum Regression {
-  None = '',
-  Linear = 'linear',
-  Exponential = 'exponential',
-  Logarithmic = 'logarithmic',
-  Polynomial = 'polynomial',
-}
+const Regression = {
+  None: '',
+  Linear: 'linear',
+  Exponential: 'exponential',
+  Logarithmic: 'logarithmic',
+  Polynomial: 'polynomial',
+} as const;
+type Regression = (typeof Regression)[keyof typeof Regression];
 
 type RegressionSelectProps = {
   setRegressionMode: (mode: Regression) => void;
@@ -215,22 +241,35 @@ type EChartsDiagramProps = {
   drifts: Drift[];
 };
 
+const timestamp = (t: number) => new Date(t).toLocaleString();
+const timestampFormatter: Extract<EChartsOption['tooltip'], Array<unknown>>[number]['formatter'] = (
+  param,
+) => {
+  const params = Array.isArray(param) ? param : [param];
+  return params
+    .map((p) => {
+      const [x, y] = p.data as number[];
+      return `<span style="font-weight: 800">${timestamp(x)}</span>: ${y}`;
+    })
+    .join('<br/>');
+};
+
 /**
  * Chart displaying a line diagram following the drifts' ordering
  *
  * @param drifts drifts to render
  */
 const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
-  const [xAxisMode, setXAxisMode] = useState(Scale.Linear);
-  const [yAxisMode, setYAxisMode] = useState(Scale.Linear);
+  const [xAxisMode, setXAxisMode] = useState<Scale>(Scale.Linear);
+  const [yAxisMode, setYAxisMode] = useState<Scale>(Scale.Linear);
 
-  const [graphMode, setGraphMode] = useState<string>(GraphMode.Line);
+  const [graphMode, setGraphMode] = useState<GraphMode>(GraphMode.Scatter);
   const [regressionMode, setRegressionMode] = useState<Regression>(Regression.None);
   const [polyRegressionOrder, setPolyRegressionOrder] = useState<number>(2);
 
-  const [xAxis, setXAxis] = useState('');
+  const [xAxis, setXAxis] = useState<string | symbol>('');
   const updateXAxis = useMemo(() => debounce(setXAxis, 250), [setXAxis]);
-  const [yAxis, setYAxis] = useState('');
+  const [yAxis, setYAxis] = useState<string | symbol>('');
   const updateYAxis = useMemo(() => debounce(setYAxis, 250), [setYAxis]);
 
   const labelSet = new Set<number>();
@@ -238,16 +277,19 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
   let dataPoints: DataPoint[] = [];
   let rejected: RejectedResult[] = [];
 
+  const xAxisSet = typeof xAxis === 'symbol' || xAxis.length > 0;
+  const yAxisSet = typeof yAxis === 'symbol' || yAxis.length > 0;
+
   // if axes entered, parse data by x and y
-  if (xAxis.length && yAxis.length) {
+  if (xAxisSet && yAxisSet) {
     [dataPoints, rejected] = generateDataPoints(drifts, xAxis, yAxis);
     for (const dataPoint of dataPoints) {
       labelSet.add(dataPoint.x);
     }
   }
 
-  const datasets: ({ source: number[][] } | { transform: unknown })[] = [];
-  const series = [];
+  const datasets: EChartsOption['dataset'] = [];
+  const series: EChartsOption['series'] = [];
   datasets.push({ source: dataPoints.map((d) => [d.x, d.y]) });
   series.push({
     type: graphMode,
@@ -281,7 +323,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
       fontSize: 12,
     },
     encode: { label: 2, tooltip: 1 },
-  };
+  } as const;
 
   const enableRegression = regressionMode !== Regression.None;
   if (enableRegression) {
@@ -289,23 +331,51 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
     series.push(regressionSeries);
   }
 
-  const options = {
+  const xAxisOptions: EChartsOption['xAxis'] =
+    xAxisMode === Scale.Logarithmic
+      ? {
+          splitLine: {
+            lineStyle: {
+              type: 'dashed',
+            },
+          },
+          type: 'log',
+          name: getSubkeyName(resolveSymbol(xAxis)),
+        }
+      : {
+          ...(xAxis !== Time
+            ? {
+                splitLine: {
+                  lineStyle: {
+                    type: 'dashed',
+                  },
+                },
+              }
+            : { splitLine: { show: false } }),
+          ...(xAxis === Time && {
+            scale: true,
+            min: ({ min }) => min,
+            max: ({ max }) => max,
+            axisLabel: {
+              formatter: timestamp,
+            },
+          }),
+          type: 'value',
+          name: getSubkeyName(resolveSymbol(xAxis)),
+        };
+
+  const options: EChartsOption = {
     dataset: [...datasets],
     tooltip: {
       trigger: 'axis',
       axisPointer: {
         type: 'cross',
       },
+      ...(xAxis === Time && {
+        formatter: timestampFormatter,
+      }),
     },
-    xAxis: {
-      splitLine: {
-        lineStyle: {
-          type: 'dashed',
-        },
-      },
-      type: xAxisMode === Scale.Logarithmic ? 'log' : 'value',
-      name: getSubkeyName(xAxis),
-    },
+    xAxis: xAxisOptions,
     yAxis: {
       splitLine: {
         lineStyle: {
@@ -313,8 +383,9 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
         },
       },
       type: yAxisMode === Scale.Logarithmic ? 'log' : 'value',
-      name: getSubkeyName(yAxis),
+      name: getSubkeyName(resolveSymbol(yAxis)),
       nameRotate: 90,
+      axisLabel: {},
     },
     series: [...series],
     animation: false,
@@ -326,7 +397,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
         <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
           <div>
             <Label>Graph mode</Label>
-            <Select onValueChange={(e) => setGraphMode(e)} value={graphMode}>
+            <Select onValueChange={(e) => setGraphMode(e as GraphMode)} value={graphMode}>
               <SelectTrigger>
                 <SelectValue placeholder="Graph mode" />
               </SelectTrigger>
@@ -342,7 +413,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
       <div className="columns-1 md:columns-2 mb-2">
         <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
           <Label>X Scale</Label>
-          <Select onValueChange={(e) => setXAxisMode(e)} value={xAxisMode}>
+          <Select onValueChange={(e) => setXAxisMode(e as Scale)} value={xAxisMode}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -354,7 +425,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
         </div>
         <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
           <Label>Y Scale</Label>
-          <Select onValueChange={(e) => setYAxisMode(e)} value={yAxisMode}>
+          <Select onValueChange={(e) => setYAxisMode(e as Scale)} value={yAxisMode}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -377,18 +448,20 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
       <div className="columns-1 md:columns-2">
         <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
           <Label htmlFor="x-axis">X Axis:</Label>
-          <Input
+          <SuggestionsInput
             id="x-axis"
             placeholder="Enter a JSON path (e.g. machine.cpu.count)"
-            onChange={(i) => updateXAxis(i.target.value)}
+            setInput={updateXAxis}
+            suggestions={[]}
           />
         </div>
         <div className={cn('grid w-full max-w-sm items-center gap-1.5')}>
           <Label htmlFor="y-axis">Y Axis:</Label>
-          <Input
+          <SuggestionsInput
             id="y-axis"
             placeholder="Enter a JSON path (e.g. result.score)"
-            onChange={(i) => updateYAxis(i.target.value)}
+            setInput={updateYAxis}
+            suggestions={[]}
           />
         </div>
       </div>
@@ -408,7 +481,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
           )}
         </div>
       )}
-      {xAxis.length > 0 && yAxis.length > 0 && datasets.length > 0 && (
+      {xAxisSet && yAxisSet && datasets.length > 0 && (
         <>
           <div
             style={{
