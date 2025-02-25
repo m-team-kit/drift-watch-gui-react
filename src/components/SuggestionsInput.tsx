@@ -46,6 +46,11 @@ const SuggestionsInput = ({
         className={cn('pr-20', typeof value === 'symbol' && 'text-blue-400')}
         value={value.toString()}
         ref={inputRef}
+        onKeyDown={() => {
+          if (typeof value === 'symbol') {
+            updateValue('');
+          }
+        }}
         onChange={(e) => {
           if (typeof value === 'symbol') {
             updateValue('');

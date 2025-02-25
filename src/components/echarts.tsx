@@ -391,7 +391,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
           <Label htmlFor="y-axis">Y Axis:</Label>
           <SuggestionsInput
             id="y-axis"
-            placeholder="Enter a JSON path (e.g. result.score)"
+            placeholder="JSON Path"
             setInput={updateYAxis}
             suggestions={findKeys(drifts)}
           />
