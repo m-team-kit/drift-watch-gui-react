@@ -54,34 +54,39 @@ const RouteComponent = () => {
   }
 
   return (
-    <Tabs defaultValue="drifts">
+    <>
       <div className="flex justify-center">
-        <div className="flex mt-2 grow max-w-[80ch] justify-between">
-          <div className="w-[10ch]">
-            <Button asChild variant="outline" className="me-2">
-              <Link to="/">
-                <ArrowLeft /> Back
-              </Link>
-            </Button>
-          </div>
-          <TabsList>
-            <TabsTrigger value="drifts">Drifts</TabsTrigger>
-            {experiment.data.data.permissions !== undefined && (
-              <TabsTrigger value="permissions">Permissions</TabsTrigger>
-            )}
-          </TabsList>
-          <div className="w-[10ch]" />
-        </div>
+        <h1 className="text-xl">Experiment {experiment.data.data.id}</h1>
       </div>
-      <TabsContent value="drifts">
-        <Drifts experiment={experiment.data.data} />
-      </TabsContent>
-      {experiment.data.data.permissions !== undefined && (
-        <TabsContent value="permissions">
-          <ExperimentPermissions permissions={experiment.data.data.permissions} />
+      <Tabs defaultValue="drifts">
+        <div className="flex justify-center">
+          <div className="flex mt-2 grow max-w-[80ch] justify-between">
+            <div className="w-[10ch]">
+              <Button asChild variant="outline" className="me-2">
+                <Link to="/">
+                  <ArrowLeft /> Back
+                </Link>
+              </Button>
+            </div>
+            <TabsList>
+              <TabsTrigger value="drifts">Drifts</TabsTrigger>
+              {experiment.data.data.permissions !== undefined && (
+                <TabsTrigger value="permissions">Permissions</TabsTrigger>
+              )}
+            </TabsList>
+            <div className="w-[10ch]" />
+          </div>
+        </div>
+        <TabsContent value="drifts">
+          <Drifts experiment={experiment.data.data} />
         </TabsContent>
-      )}
-    </Tabs>
+        {experiment.data.data.permissions !== undefined && (
+          <TabsContent value="permissions">
+            <ExperimentPermissions permissions={experiment.data.data.permissions} />
+          </TabsContent>
+        )}
+      </Tabs>
+    </>
   );
 };
 
