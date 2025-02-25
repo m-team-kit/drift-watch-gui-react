@@ -186,6 +186,47 @@ type EChartsDiagramProps = {
 const timestamp = (t: number | Date) =>
   t instanceof Date ? t.toLocaleString() : new Date(t).toLocaleString();
 
+const recurseFindKeys = (data: object) => {
+  const keys: string[] = [];
+  for (const [key, value] of Object.entries(data)) {
+    const entry = value as unknown;
+    if (typeof entry === 'object' && entry !== null) {
+      keys.push(...recurseFindKeys(entry));
+    } else {
+      keys.push(key);
+    }
+  }
+  return keys;
+};
+
+const findKeys = (drifts: Drift[]) => {
+  const bySchema: Map<string, Set<string>> = new Map();
+  for (const drift of drifts) {
+    let set = bySchema.get(drift.schema_version);
+    if (set === undefined) {
+      set = new Set();
+      bySchema.set(drift.schema_version, set);
+    }
+    if (typeof drift.parameters === 'object' && drift.parameters !== null) {
+      const keys = recurseFindKeys(drift.parameters);
+      for (const key of keys) {
+        set.add(key);
+      }
+    }
+  }
+
+  // TODO: once a dropdown supports it, return keys by schema for better UX, to display what exists where
+  // TODO: also support labelling keys that don't exist on all drifts of a schema
+  //return bySchema;
+  const keys: string[] = [];
+  for (const set of bySchema.values()) {
+    for (const key of set) {
+      keys.push(key);
+    }
+  }
+  return keys;
+};
+
 /**
  * Chart displaying a line diagram following the drifts' ordering
  *
@@ -343,7 +384,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
             id="x-axis"
             placeholder="JSON Path"
             setInput={updateXAxis}
-            suggestions={[]}
+            suggestions={findKeys(drifts)}
           />
         </div>
         <div className={input}>
@@ -352,7 +393,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
             id="y-axis"
             placeholder="Enter a JSON path (e.g. result.score)"
             setInput={updateYAxis}
-            suggestions={[]}
+            suggestions={findKeys(drifts)}
           />
         </div>
       </div>

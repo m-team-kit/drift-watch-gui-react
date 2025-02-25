@@ -62,15 +62,29 @@ const SuggestionsInput = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[12rem]">
-            <ScrollArea className="max-h-8">
-              <DropdownMenuItem onSelect={() => updateValue(Time)} className="text-blue-400">
+            <ScrollArea>
+              <DropdownMenuItem
+                role="button"
+                onSelect={() => updateValue(Time)}
+                className="text-blue-400 cursor-pointer"
+              >
                 Time
               </DropdownMenuItem>
               {suggestions.map((option) => (
-                <DropdownMenuItem key={option} onSelect={() => updateValue(option)}>
+                <DropdownMenuItem
+                  role="button"
+                  key={option}
+                  onSelect={() => updateValue(option)}
+                  className="cursor-pointer"
+                >
                   {option}
                 </DropdownMenuItem>
               ))}
+              {suggestions.length === 0 && (
+                <small className="block text-center opacity-70 p-1">
+                  Suggestions will appear as you select drifts.
+                </small>
+              )}
             </ScrollArea>
           </DropdownMenuContent>
         </DropdownMenu>
