@@ -120,3 +120,7 @@ td {
     @apply bg-background text-foreground;
   }
 }
+
+.container {
+  @apply mx-auto max-w-[80ch] mb-2;
+}
