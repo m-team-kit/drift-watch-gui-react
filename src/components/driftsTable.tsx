@@ -2,22 +2,12 @@ import { type Drift } from '@/api/models/index';
 import columnSortButton from '@/components/columnSortButton';
 import { Button } from '@/components/ui/button';
 import { Link } from '@tanstack/react-router';
-import {
-  type ColumnDef,
-  getCoreRowModel,
-  getSortedRowModel,
-  type SortingState,
-  type Table,
-  useReactTable,
-} from '@tanstack/react-table';
+import { type ColumnDef, type Table } from '@tanstack/react-table';
 import { Eye } from 'lucide-react';
 
-import EChartsDiagram from '@/components/echarts';
 import { Checkbox } from '@/components/ui/checkbox';
 import { signal, useComputed } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
-import { useMemo, useState } from 'react';
-import { TableContent } from './ui/data-table';
 
 export const selectedDrifts = signal<Array<Drift>>([]);
 
@@ -143,50 +133,3 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (expe
     ),
   },
 ];
-
-type DataTableProps = {
-  data: Drift[];
-  experimentId: string;
-};
-
-export const DriftsTable = ({ data, experimentId }: DataTableProps) => {
-  useSignals();
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const columns = useMemo(() => driftsColumns(experimentId), [experimentId]);
-
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
-  });
-
-  return (
-    <>
-      {selectedDrifts.value.length > 0 && (
-        <div className="mx-auto max-w-[80ch] mb-2">
-          <EChartsDiagram drifts={selectedDrifts.value} />
-          <div className="flex justify-center mt-2">
-            <span>
-              {selectedDrifts.value.length} drift{selectedDrifts.value.length > 1 ? 's' : null}{' '}
-              selected
-              <Button
-                variant="destructive"
-                className="ms-2"
-                size="sm"
-                onClick={() => (selectedDrifts.value = [])}
-              >
-                Clear
-              </Button>
-            </span>
-          </div>
-        </div>
-      )}
-      <TableContent table={table} columns={columns} />
-    </>
-  );
-};

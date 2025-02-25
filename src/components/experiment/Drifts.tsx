@@ -1,9 +1,11 @@
 import experimentIdDriftSearchPost from '@/api/functions/experimentIdDriftSearchPost';
 import { type Drift, type Experiment } from '@/api/models';
 import ButtonBadge from '@/components/ButtonBadge';
-import { DriftsTable } from '@/components/driftsTable';
+import { driftsColumns, selectedDrifts } from '@/components/driftsTable';
+import EChartsDiagram from '@/components/echarts';
 import Paginate from '@/components/Paginate';
 import { Button } from '@/components/ui/button';
+import { TableContent } from '@/components/ui/data-table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -15,9 +17,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import getQueryPagination from '@/lib/getQueryPagination';
+import { useSignals } from '@preact/signals-react/runtime';
 import { useQuery } from '@tanstack/react-query';
+import {
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+} from '@tanstack/react-table';
 import { Plus } from 'lucide-react';
-import { type Dispatch, type FC, type SetStateAction, useState } from 'react';
+import { type Dispatch, type FC, type SetStateAction, useMemo, useState } from 'react';
 
 type FilterInputProps = {
   tags: string[];
@@ -106,6 +115,8 @@ type DriftsProps = {
   experiment: Experiment;
 };
 const Drifts: FC<DriftsProps> = ({ experiment }) => {
+  useSignals();
+
   const [page, setPage] = useState(1);
   const [tagsFilter, setTagsFilter] = useState<string[]>([]);
   const [completionFilter, setCompletionFilter] = useState<Drift['job_status'] | undefined>(
@@ -138,30 +149,19 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
 
   const pagination = getQueryPagination(drifts);
 
-  // TODO: deduplicate the <FilterInput filter={filter} setFilter={setFilter} /> in all the returns
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const columns = useMemo(() => driftsColumns(experiment.id), [experiment.id]);
 
-  if (drifts.data === undefined || drifts.data.status !== 200) {
-    return (
-      <>
-        <FilterInput
-          tags={tagsFilter}
-          setTags={setTagsFilter}
-          completion={completionFilter}
-          setCompletion={setCompletionFilter}
-        />
-        {(drifts.isLoading || drifts.isPending) && <div>Loading...</div>}
-        {drifts.isError && <div>Error: {drifts.error.message}</div>}
-        {drifts.data?.status === -1 && <div>Network error</div>}
-        {drifts.data?.status === 422 && <div>Malformed query</div>}
-        {drifts.data?.status === 'default' && (
-          <div>
-            Unknown error
-            {drifts.data.data.message}
-          </div>
-        )}
-      </>
-    );
-  }
+  const table = useReactTable({
+    data: drifts.data?.status === 200 ? drifts.data.data : [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
+  });
 
   return (
     <>
@@ -171,7 +171,36 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
         completion={completionFilter}
         setCompletion={setCompletionFilter}
       />
-      <DriftsTable data={drifts.data.data} experimentId={experiment.id} />
+      {(drifts.isLoading || drifts.isPending) && <div>Loading...</div>}
+      {drifts.isError && <div>Error: {drifts.error.message}</div>}
+      {drifts.data?.status === -1 && <div>Network error</div>}
+      {drifts.data?.status === 422 && <div>Malformed query</div>}
+      {drifts.data?.status === 'default' && (
+        <div>
+          Unknown error
+          {drifts.data.data.message}
+        </div>
+      )}
+      <EChartsDiagram drifts={selectedDrifts.value} />
+      {selectedDrifts.value.length > 0 && (
+        <div className="container">
+          <div className="flex justify-center mt-2">
+            <span>
+              {selectedDrifts.value.length} drift{selectedDrifts.value.length > 1 ? 's' : null}{' '}
+              selected
+              <Button
+                variant="destructive"
+                className="ms-2"
+                size="sm"
+                onClick={() => (selectedDrifts.value = [])}
+              >
+                Clear
+              </Button>
+            </span>
+          </div>
+        </div>
+      )}
+      {drifts.data?.status === 200 && <TableContent table={table} columns={columns} />}
       <Paginate
         page={page}
         setPage={setPage}
