@@ -46,7 +46,7 @@ const RootComponent = () => (
               }}
               activeOptions={{ exact: true }}
             >
-              Home
+              Experiments
             </Link>
             <LoginButton />
           </div>
