@@ -28,6 +28,16 @@ import {
 import { Plus } from 'lucide-react';
 import { type Dispatch, type FC, type SetStateAction, useMemo, useState } from 'react';
 
+const deselectNotMatchingTags = (tags: string[]) => {
+  selectedDrifts.value = selectedDrifts.value.filter((drift) =>
+    tags.every((tag) => drift.tags?.includes(tag) ?? false),
+  );
+};
+
+const deselectNotMatchingCompletion = (completion: Drift['job_status']) => {
+  selectedDrifts.value = selectedDrifts.value.filter((drift) => drift.job_status === completion);
+};
+
 type FilterInputProps = {
   tags: string[];
   setTags: Dispatch<SetStateAction<string[]>>;
@@ -61,7 +71,9 @@ const FilterInput = ({ tags, setTags, completion, setCompletion }: FilterInputPr
             if (newFilter.length === 0) {
               return;
             }
-            setTags([...tags, newFilter]);
+            const newTags = [...tags, newFilter];
+            setTags(newTags);
+            deselectNotMatchingTags(newTags);
             setNewFilter('');
           }}
           disabled={newFilter.length === 0}
@@ -82,7 +94,11 @@ const FilterInput = ({ tags, setTags, completion, setCompletion }: FilterInputPr
         <Select
           key={key}
           value={completion}
-          onValueChange={(v) => setCompletion(v as Drift['job_status'])}
+          onValueChange={(v) => {
+            const newCompletion = v as Drift['job_status'];
+            deselectNotMatchingCompletion(newCompletion);
+            setCompletion(newCompletion);
+          }}
         >
           <SelectTrigger className="grow-0 shrink w-[15ch]">
             <SelectValue placeholder="Completion" />
