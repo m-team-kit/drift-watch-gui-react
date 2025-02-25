@@ -1,4 +1,4 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import type ExperimentIdDriftPostParams from './experimentIdDriftPost.parameters.js';
 
@@ -9,6 +9,7 @@ import {
   type Response201,
   type Response401,
   type Response403,
+  type Response404,
 } from './experimentIdDriftPost.responses.js';
 
 /**
@@ -18,16 +19,15 @@ import {
  *
  * @async
  **/
-const experimentIdDriftPost: ApiFunction<
-  ExperimentIdDriftPostParams,
-  ExperimentIdDriftPostResponse
-> = async (parameters) => {
+const experimentIdDriftPost = async (
+  parameters: ExperimentIdDriftPostParams & { config?: ConfigOverrides },
+): Promise<ExperimentIdDriftPostResponse> => {
   const {
     body,
     params: { experiment_id },
     config,
   } = parameters;
-  const url = `${config?.basePath ?? ''}/experiment/${experiment_id.toString()}/drift`;
+  const url = `${config?.basePath ?? ''}/experiment/${encodeURIComponent(experiment_id.toString())}/drift`;
   const localFetch = config?.fetch ?? fetch;
   const headers = new Headers(config?.defaultParams?.headers);
 
@@ -69,6 +69,13 @@ const experimentIdDriftPost: ApiFunction<
       return {
         status: 403,
         data: (await response.json()) as Response403,
+        response,
+        request: requestMeta,
+      };
+    case 404:
+      return {
+        status: 404,
+        data: (await response.json()) as Response404,
         response,
         request: requestMeta,
       };

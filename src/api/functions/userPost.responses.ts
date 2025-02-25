@@ -8,38 +8,48 @@ export type Response201 = User;
 
 export const Response401Schema = Type.Object(
   {
-    error: Type.Optional(Type.String({ description: 'Error name' })),
-    error_description: Type.Optional(Type.String({ description: 'Error message' })),
+    code: Type.Optional(Type.Number({ description: 'HTTP status code' })),
+    status: Type.Optional(Type.String({ description: 'HTTP status message' })),
+    message: Type.Optional(Type.String({ description: 'Error message' })),
   },
   { $id: 'Response401' },
 );
 export type Response401 = {
   /**
-   * Error name
+   * HTTP status code
    */
-  error?: string;
+  code?: number;
+  /**
+   * HTTP status message
+   */
+  status?: string;
   /**
    * Error message
    */
-  error_description?: string;
+  message?: string;
 };
 
 export const Response403Schema = Type.Object(
   {
-    error: Type.Optional(Type.String({ description: 'Error name' })),
-    error_description: Type.Optional(Type.String({ description: 'Error message' })),
+    code: Type.Optional(Type.Number({ description: 'HTTP status code' })),
+    status: Type.Optional(Type.String({ description: 'HTTP status message' })),
+    message: Type.Optional(Type.String({ description: 'Error message' })),
   },
   { $id: 'Response403' },
 );
 export type Response403 = {
   /**
-   * Error name
+   * HTTP status code
    */
-  error?: string;
+  code?: number;
+  /**
+   * HTTP status message
+   */
+  status?: string;
   /**
    * Error message
    */
-  error_description?: string;
+  message?: string;
 };
 
 export const Response409Schema = Type.Object(

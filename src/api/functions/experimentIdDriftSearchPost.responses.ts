@@ -8,9 +8,57 @@ import type ExperimentIdDriftSearchPostParams from './experimentIdDriftSearchPos
 export const Response200Schema = Type.Array(DriftSchema, { $id: 'Response200' });
 export type Response200 = Array<Drift>;
 
+export const Response403Schema = Type.Object(
+  {
+    code: Type.Optional(Type.Number({ description: 'HTTP status code' })),
+    status: Type.Optional(Type.String({ description: 'HTTP status message' })),
+    message: Type.Optional(Type.String({ description: 'Error message' })),
+  },
+  { $id: 'Response403' },
+);
+export type Response403 = {
+  /**
+   * HTTP status code
+   */
+  code?: number;
+  /**
+   * HTTP status message
+   */
+  status?: string;
+  /**
+   * Error message
+   */
+  message?: string;
+};
+
+export const Response404Schema = Type.Object(
+  {
+    code: Type.Optional(Type.Number({ description: 'Error code' })),
+    status: Type.Optional(Type.String({ description: 'Error name' })),
+    message: Type.Optional(Type.String({ description: 'Error message' })),
+  },
+  { $id: 'Response404' },
+);
+export type Response404 = {
+  /**
+   * Error code
+   */
+  code?: number;
+  /**
+   * Error name
+   */
+  status?: string;
+  /**
+   * Error message
+   */
+  message?: string;
+};
+
 type Request = RequestMeta & { parameters: ExperimentIdDriftSearchPostParams };
 type ExperimentIdDriftSearchPostResponse =
   | { response: Response; request: Request; status: 200; data: Response200 }
+  | { response: Response; request: Request; status: 403; data: Response403 }
+  | { response: Response; request: Request; status: 404; data: Response404 }
   | { response: Response; request: Request; status: 422; data: ResponseUNPROCESSABLE_ENTITY }
   | { response: Response; request: Request; status: 'default'; data: ResponseDEFAULT_ERROR }
   | { response: Response; request: Request; status: -1 };

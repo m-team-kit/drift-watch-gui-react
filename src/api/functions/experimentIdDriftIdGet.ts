@@ -1,10 +1,14 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import type ExperimentIdDriftIdGetParams from './experimentIdDriftIdGet.parameters.js';
 
 import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
 import type ExperimentIdDriftIdGetResponse from './experimentIdDriftIdGet.responses.js';
-import { type Response200, type Response404 } from './experimentIdDriftIdGet.responses.js';
+import {
+  type Response200,
+  type Response403,
+  type Response404,
+} from './experimentIdDriftIdGet.responses.js';
 
 /**
  * Retrieve a drift job by its id from the database.
@@ -13,15 +17,14 @@ import { type Response200, type Response404 } from './experimentIdDriftIdGet.res
  *
  * @async
  **/
-const experimentIdDriftIdGet: ApiFunction<
-  ExperimentIdDriftIdGetParams,
-  ExperimentIdDriftIdGetResponse
-> = async (parameters) => {
+const experimentIdDriftIdGet = async (
+  parameters: ExperimentIdDriftIdGetParams & { config?: ConfigOverrides },
+): Promise<ExperimentIdDriftIdGetResponse> => {
   const {
     params: { experiment_id, drift_id },
     config,
   } = parameters;
-  const url = `${config?.basePath ?? ''}/experiment/${experiment_id.toString()}/drift/${drift_id.toString()}`;
+  const url = `${config?.basePath ?? ''}/experiment/${encodeURIComponent(experiment_id.toString())}/drift/${encodeURIComponent(drift_id.toString())}`;
   const localFetch = config?.fetch ?? fetch;
   const headers = new Headers(config?.defaultParams?.headers);
 
@@ -47,6 +50,13 @@ const experimentIdDriftIdGet: ApiFunction<
       return {
         status: 200,
         data: (await response.json()) as Response200,
+        response,
+        request: requestMeta,
+      };
+    case 403:
+      return {
+        status: 403,
+        data: (await response.json()) as Response403,
         response,
         request: requestMeta,
       };

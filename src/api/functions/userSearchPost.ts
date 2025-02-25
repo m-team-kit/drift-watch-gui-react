@@ -1,4 +1,4 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import type UserSearchPostParams from './userSearchPost.parameters.js';
 
@@ -19,9 +19,9 @@ and MongoDB format.
  * 
  * @async
  **/
-const userSearchPost: ApiFunction<UserSearchPostParams, UserSearchPostResponse> = async (
-  parameters,
-) => {
+const userSearchPost = async (
+  parameters: UserSearchPostParams & { config?: ConfigOverrides },
+): Promise<UserSearchPostResponse> => {
   const { body, params: { page, page_size } = {}, config } = parameters;
   const url = `${config?.basePath ?? ''}/user/search`;
   const localFetch = config?.fetch ?? fetch;

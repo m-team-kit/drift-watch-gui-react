@@ -1,4 +1,4 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import type ExperimentIdPutParams from './experimentIdPut.parameters.js';
 
@@ -10,6 +10,7 @@ import {
   type Response401,
   type Response403,
   type Response404,
+  type Response409,
 } from './experimentIdPut.responses.js';
 
 /**
@@ -19,15 +20,15 @@ import {
  *
  * @async
  **/
-const experimentIdPut: ApiFunction<ExperimentIdPutParams, ExperimentIdPutResponse> = async (
-  parameters,
-) => {
+const experimentIdPut = async (
+  parameters: ExperimentIdPutParams & { config?: ConfigOverrides },
+): Promise<ExperimentIdPutResponse> => {
   const {
     body,
     params: { experiment_id },
     config,
   } = parameters;
-  const url = `${config?.basePath ?? ''}/experiment/${experiment_id.toString()}`;
+  const url = `${config?.basePath ?? ''}/experiment/${encodeURIComponent(experiment_id.toString())}`;
   const localFetch = config?.fetch ?? fetch;
   const headers = new Headers(config?.defaultParams?.headers);
 
@@ -76,6 +77,13 @@ const experimentIdPut: ApiFunction<ExperimentIdPutParams, ExperimentIdPutRespons
       return {
         status: 404,
         data: (await response.json()) as Response404,
+        response,
+        request: requestMeta,
+      };
+    case 409:
+      return {
+        status: 409,
+        data: (await response.json()) as Response409,
         response,
         request: requestMeta,
       };

@@ -1,4 +1,4 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
 import type EntitlementGetResponse from './entitlementGet.responses.js';
@@ -15,7 +15,9 @@ import {
  *
  * @async
  **/
-const entitlementGet: ApiFunction<undefined, EntitlementGetResponse> = async (parameters = {}) => {
+const entitlementGet = async (
+  parameters: { config?: ConfigOverrides } = {},
+): Promise<EntitlementGetResponse> => {
   const { config } = parameters;
   const url = `${config?.basePath ?? ''}/entitlement`;
   const localFetch = config?.fetch ?? fetch;

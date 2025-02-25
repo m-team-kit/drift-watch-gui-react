@@ -1,4 +1,4 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import type ExperimentPostParams from './experimentPost.parameters.js';
 
@@ -9,6 +9,7 @@ import {
   type Response201,
   type Response401,
   type Response403,
+  type Response409,
 } from './experimentPost.responses.js';
 
 /**
@@ -18,9 +19,9 @@ import {
  *
  * @async
  **/
-const experimentPost: ApiFunction<ExperimentPostParams, ExperimentPostResponse> = async (
-  parameters,
-) => {
+const experimentPost = async (
+  parameters: ExperimentPostParams & { config?: ConfigOverrides },
+): Promise<ExperimentPostResponse> => {
   const { body, config } = parameters;
   const url = `${config?.basePath ?? ''}/experiment`;
   const localFetch = config?.fetch ?? fetch;
@@ -64,6 +65,13 @@ const experimentPost: ApiFunction<ExperimentPostParams, ExperimentPostResponse> 
       return {
         status: 403,
         data: (await response.json()) as Response403,
+        response,
+        request: requestMeta,
+      };
+    case 409:
+      return {
+        status: 409,
+        data: (await response.json()) as Response409,
         response,
         request: requestMeta,
       };

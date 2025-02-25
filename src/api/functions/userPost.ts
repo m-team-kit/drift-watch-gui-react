@@ -1,4 +1,4 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
 import type UserPostResponse from './userPost.responses.js';
@@ -16,7 +16,9 @@ import {
  *
  * @async
  **/
-const userPost: ApiFunction<undefined, UserPostResponse> = async (parameters = {}) => {
+const userPost = async (
+  parameters: { config?: ConfigOverrides } = {},
+): Promise<UserPostResponse> => {
   const { config } = parameters;
   const url = `${config?.basePath ?? ''}/user`;
   const localFetch = config?.fetch ?? fetch;

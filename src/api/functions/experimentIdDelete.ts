@@ -1,4 +1,4 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import type ExperimentIdDeleteParams from './experimentIdDelete.parameters.js';
 
@@ -17,15 +17,14 @@ import {
  *
  * @async
  **/
-const experimentIdDelete: ApiFunction<
-  ExperimentIdDeleteParams,
-  ExperimentIdDeleteResponse
-> = async (parameters) => {
+const experimentIdDelete = async (
+  parameters: ExperimentIdDeleteParams & { config?: ConfigOverrides },
+): Promise<ExperimentIdDeleteResponse> => {
   const {
     params: { experiment_id },
     config,
   } = parameters;
-  const url = `${config?.basePath ?? ''}/experiment/${experiment_id.toString()}`;
+  const url = `${config?.basePath ?? ''}/experiment/${encodeURIComponent(experiment_id.toString())}`;
   const localFetch = config?.fetch ?? fetch;
   const headers = new Headers(config?.defaultParams?.headers);
 

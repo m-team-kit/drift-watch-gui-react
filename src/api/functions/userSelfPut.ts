@@ -1,4 +1,4 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
 import type UserSelfPutResponse from './userSelfPut.responses.js';
@@ -11,7 +11,9 @@ import { type Response200, type Response401, type Response403 } from './userSelf
  *
  * @async
  **/
-const userSelfPut: ApiFunction<undefined, UserSelfPutResponse> = async (parameters = {}) => {
+const userSelfPut = async (
+  parameters: { config?: ConfigOverrides } = {},
+): Promise<UserSelfPutResponse> => {
   const { config } = parameters;
   const url = `${config?.basePath ?? ''}/user/self`;
   const localFetch = config?.fetch ?? fetch;

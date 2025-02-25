@@ -1,11 +1,15 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import type ExperimentIdDriftSearchPostParams from './experimentIdDriftSearchPost.parameters.js';
 
 import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
 import { type ResponseUNPROCESSABLE_ENTITY } from '../responses/UNPROCESSABLE_ENTITY.js';
 import type ExperimentIdDriftSearchPostResponse from './experimentIdDriftSearchPost.responses.js';
-import { type Response200 } from './experimentIdDriftSearchPost.responses.js';
+import {
+  type Response200,
+  type Response403,
+  type Response404,
+} from './experimentIdDriftSearchPost.responses.js';
 
 /**
  * Get a paginated list of drift Jobs based on the provided JSON query
@@ -15,16 +19,15 @@ and MongoDB format.
  * 
  * @async
  **/
-const experimentIdDriftSearchPost: ApiFunction<
-  ExperimentIdDriftSearchPostParams,
-  ExperimentIdDriftSearchPostResponse
-> = async (parameters) => {
+const experimentIdDriftSearchPost = async (
+  parameters: ExperimentIdDriftSearchPostParams & { config?: ConfigOverrides },
+): Promise<ExperimentIdDriftSearchPostResponse> => {
   const {
     body,
     params: { page, page_size, experiment_id },
     config,
   } = parameters;
-  const url = `${config?.basePath ?? ''}/experiment/${experiment_id.toString()}/drift/search`;
+  const url = `${config?.basePath ?? ''}/experiment/${encodeURIComponent(experiment_id.toString())}/drift/search`;
   const localFetch = config?.fetch ?? fetch;
   const headers = new Headers(config?.defaultParams?.headers);
 
@@ -55,6 +58,20 @@ const experimentIdDriftSearchPost: ApiFunction<
       return {
         status: 200,
         data: (await response.json()) as Response200,
+        response,
+        request: requestMeta,
+      };
+    case 403:
+      return {
+        status: 403,
+        data: (await response.json()) as Response403,
+        response,
+        request: requestMeta,
+      };
+    case 404:
+      return {
+        status: 404,
+        data: (await response.json()) as Response404,
         response,
         request: requestMeta,
       };

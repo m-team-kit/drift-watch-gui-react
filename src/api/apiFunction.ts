@@ -1,4 +1,4 @@
-import { type ConfigOverrides } from './clientConfig.js';
+import { ConfigOverrides } from './clientConfig.js';
 
 /**
  * Typing for api functions where function parameters are optional if there are no api params

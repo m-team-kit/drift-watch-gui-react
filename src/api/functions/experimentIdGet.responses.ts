@@ -11,6 +11,7 @@ export const Response404Schema = Type.Object(
   {
     code: Type.Optional(Type.Number({ description: 'Error code' })),
     status: Type.Optional(Type.String({ description: 'Error name' })),
+    message: Type.Optional(Type.String({ description: 'Error message' })),
   },
   { $id: 'Response404' },
 );
@@ -23,6 +24,10 @@ export type Response404 = {
    * Error name
    */
   status?: string;
+  /**
+   * Error message
+   */
+  message?: string;
 };
 
 type Request = RequestMeta & { parameters: ExperimentIdGetParams };

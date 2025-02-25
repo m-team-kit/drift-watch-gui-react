@@ -1,4 +1,4 @@
-import { type ApiFunction } from '../apiFunction.js';
+import { type ConfigOverrides } from '../clientConfig.js';
 
 import type ExperimentIdDriftIdPutParams from './experimentIdDriftIdPut.parameters.js';
 
@@ -19,16 +19,15 @@ import {
  *
  * @async
  **/
-const experimentIdDriftIdPut: ApiFunction<
-  ExperimentIdDriftIdPutParams,
-  ExperimentIdDriftIdPutResponse
-> = async (parameters) => {
+const experimentIdDriftIdPut = async (
+  parameters: ExperimentIdDriftIdPutParams & { config?: ConfigOverrides },
+): Promise<ExperimentIdDriftIdPutResponse> => {
   const {
     body,
     params: { experiment_id, drift_id },
     config,
   } = parameters;
-  const url = `${config?.basePath ?? ''}/experiment/${experiment_id.toString()}/drift/${drift_id.toString()}`;
+  const url = `${config?.basePath ?? ''}/experiment/${encodeURIComponent(experiment_id.toString())}/drift/${encodeURIComponent(drift_id.toString())}`;
   const localFetch = config?.fetch ?? fetch;
   const headers = new Headers(config?.defaultParams?.headers);
 
