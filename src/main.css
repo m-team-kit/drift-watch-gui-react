@@ -2,13 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-td {
-  /* this feels stupid */
-  @apply border;
-  @apply border-white;
-  @apply p-1;
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -123,4 +116,13 @@ td {
 
 .container {
   @apply mx-auto max-w-[80ch] mb-2;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

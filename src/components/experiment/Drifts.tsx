@@ -6,6 +6,7 @@ import EChartsDiagram from '@/components/echarts';
 import Paginate from '@/components/Paginate';
 import { Button } from '@/components/ui/button';
 import { TableContent } from '@/components/ui/data-table';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -25,6 +26,7 @@ import {
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table';
+import { addDays, addSeconds } from 'date-fns';
 import { Plus } from 'lucide-react';
 import { type Dispatch, type FC, type SetStateAction, useMemo, useState } from 'react';
 
@@ -38,92 +40,147 @@ const deselectNotMatchingCompletion = (completion: Drift['job_status']) => {
   selectedDrifts.value = selectedDrifts.value.filter((drift) => drift.job_status === completion);
 };
 
+const deselectOutOfDateRange = (before: Date | undefined, after: Date | undefined) => {
+  selectedDrifts.value = selectedDrifts.value.filter((drift) => {
+    const createdAt = new Date(drift.created_at);
+    return (after == null || createdAt >= after) && (before == null || createdAt <= before);
+  });
+};
+
 type FilterInputProps = {
   tags: string[];
   setTags: Dispatch<SetStateAction<string[]>>;
   completion: Drift['job_status'] | undefined;
   setCompletion: Dispatch<SetStateAction<Drift['job_status'] | undefined>>;
+
+  before: Date | undefined;
+  setBefore: Dispatch<SetStateAction<Date | undefined>>;
+  after: Date | undefined;
+  setAfter: Dispatch<SetStateAction<Date | undefined>>;
 };
-const FilterInput = ({ tags, setTags, completion, setCompletion }: FilterInputProps) => {
+const FilterInput = ({
+  tags,
+  setTags,
+  completion,
+  setCompletion,
+  before,
+  setBefore,
+  after,
+  setAfter,
+}: FilterInputProps) => {
   const [newFilter, setNewFilter] = useState('');
   const [key, setKey] = useState(+new Date());
 
   return (
-    <div className="mb-2 flex justify-center">
-      <div className="flex items-center grow max-w-[80ch]">
-        <Label htmlFor="new-tag" className="self-center me-2">
-          Filter tag
-        </Label>
-        <Input
-          className="max-w-[14ch]"
-          onChange={(e) => setNewFilter(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              setTags([...tags, newFilter]);
+    <>
+      <div className="mb-2 flex justify-center">
+        <div className="flex items-center grow max-w-[80ch]">
+          <Label htmlFor="new-tag" className="self-center me-2">
+            Filter tag
+          </Label>
+          <Input
+            className="max-w-[14ch]"
+            onChange={(e) => setNewFilter(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setTags([...tags, newFilter]);
+                setNewFilter('');
+              }
+            }}
+            value={newFilter}
+          />
+          <Button
+            className="ms-2"
+            onClick={() => {
+              if (newFilter.length === 0) {
+                return;
+              }
+              const newTags = [...tags, newFilter];
+              setTags(newTags);
+              deselectNotMatchingTags(newTags);
               setNewFilter('');
-            }
-          }}
-          value={newFilter}
-        />
-        <Button
-          className="ms-2"
-          onClick={() => {
-            if (newFilter.length === 0) {
-              return;
-            }
-            const newTags = [...tags, newFilter];
-            setTags(newTags);
-            deselectNotMatchingTags(newTags);
-            setNewFilter('');
-          }}
-          disabled={newFilter.length === 0}
-          size="sm"
-        >
-          <Plus /> <span className="sr-only">Add Tag</span>
-        </Button>
-        <div className="ms-2 flex gap-1 grow min-w-1">
-          {tags.map((f) => (
-            <ButtonBadge
-              key={f}
-              onClick={() => setTags((filters) => filters.filter((filter) => filter !== f))}
-            >
-              {f}
-            </ButtonBadge>
-          ))}
+            }}
+            disabled={newFilter.length === 0}
+            size="sm"
+          >
+            <Plus /> <span className="sr-only">Add Tag</span>
+          </Button>
+          <div className="ms-2 flex gap-1 grow min-w-1">
+            {tags.map((f) => (
+              <ButtonBadge
+                key={f}
+                onClick={() => setTags((filters) => filters.filter((filter) => filter !== f))}
+              >
+                {f}
+              </ButtonBadge>
+            ))}
+          </div>
+          <Select
+            key={key}
+            value={completion}
+            onValueChange={(v) => {
+              const newCompletion = v as Drift['job_status'];
+              deselectNotMatchingCompletion(newCompletion);
+              setCompletion(newCompletion);
+            }}
+          >
+            <SelectTrigger className="grow-0 shrink w-[15ch]">
+              <SelectValue placeholder="Completion" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Running">Running</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+              <SelectItem value="Failed">Failed</SelectItem>
+              <SelectSeparator />
+              <Button
+                className="w-full px-2"
+                variant="secondary"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCompletion(undefined);
+                  setKey(+new Date());
+                }}
+              >
+                Clear
+              </Button>
+            </SelectContent>
+          </Select>
         </div>
-        <Select
-          key={key}
-          value={completion}
-          onValueChange={(v) => {
-            const newCompletion = v as Drift['job_status'];
-            deselectNotMatchingCompletion(newCompletion);
-            setCompletion(newCompletion);
-          }}
-        >
-          <SelectTrigger className="grow-0 shrink w-[15ch]">
-            <SelectValue placeholder="Completion" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Running">Running</SelectItem>
-            <SelectItem value="Completed">Completed</SelectItem>
-            <SelectItem value="Failed">Failed</SelectItem>
-            <SelectSeparator />
-            <Button
-              className="w-full px-2"
-              variant="secondary"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                setCompletion(undefined);
-                setKey(+new Date());
-              }}
-            >
-              Clear
-            </Button>
-          </SelectContent>
-        </Select>
       </div>
-    </div>
+      <div className="mb-2 max-w-[80ch] mx-auto">
+        <div className="flex items-center justify-between max-w-[80ch]">
+          <div className="flex items-center">
+            <Label htmlFor="after" className="me-2">
+              After
+            </Label>
+            <DatePicker
+              id="after"
+              date={after}
+              setDate={(date) => {
+                deselectOutOfDateRange(before, date);
+                setAfter(date);
+              }}
+            />
+          </div>
+          <div className="flex items-center">
+            <Label htmlFor="before" className="mx-2">
+              Before
+            </Label>
+            <DatePicker
+              id="before"
+              date={before}
+              setDate={(date) => {
+                // shift by ~1 day to make bounds inclusive
+                const newDate = date ? addSeconds(addDays(date, 1), -1) : undefined;
+                deselectOutOfDateRange(newDate, after);
+                setBefore(newDate);
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
@@ -138,9 +195,19 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
   const [completionFilter, setCompletionFilter] = useState<Drift['job_status'] | undefined>(
     undefined,
   );
+  const [before, setBefore] = useState<Date | undefined>(undefined);
+  const [after, setAfter] = useState<Date | undefined>(undefined);
 
   const drifts = useQuery({
-    queryKey: ['experimentDrift', experiment.id, page, tagsFilter.join(','), completionFilter],
+    queryKey: [
+      'experimentDrift',
+      experiment.id,
+      page,
+      tagsFilter.join(','),
+      completionFilter,
+      before,
+      after,
+    ],
     queryFn: () =>
       experimentIdDriftSearchPost({
         params: {
@@ -155,6 +222,16 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
           }),
           ...(completionFilter != null && {
             job_status: completionFilter,
+          }),
+          ...((before != null || after != null) && {
+            created_at: {
+              ...(before != null && {
+                $lt: before.toISOString(),
+              }),
+              ...(after != null && {
+                $gt: after.toISOString(),
+              }),
+            },
           }),
         },
         config: {
@@ -186,6 +263,10 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
         setTags={setTagsFilter}
         completion={completionFilter}
         setCompletion={setCompletionFilter}
+        before={before}
+        setBefore={setBefore}
+        after={after}
+        setAfter={setAfter}
       />
       {(drifts.isLoading || drifts.isPending) && <div>Loading...</div>}
       {drifts.isError && <div>Error: {drifts.error.message}</div>}
@@ -197,6 +278,7 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
           {drifts.data.data.message}
         </div>
       )}
+      <div className="mb-4" />
       <EChartsDiagram drifts={selectedDrifts.value} />
       {selectedDrifts.value.length > 0 && (
         <div className="container">
