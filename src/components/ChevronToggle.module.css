@@ -1,0 +1,14 @@
+.chevronToggle {
+  transition: transform;
+  transition-duration: 200ms;
+}
+
+/* clockwise (to the left) */
+.chevronToggle.ccwToggled {
+  transform: rotate(-180deg);
+}
+
+/* counter-clockwise (to the left) */
+.chevronToggle.cwToggled {
+  transform: rotate(180deg);
+}

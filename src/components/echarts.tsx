@@ -7,7 +7,9 @@ import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 
 import { type Drift } from '@/api/models';
+import chevronStyle from '@/components/ChevronToggle.module.css';
 import { Time } from '@/components/dataSymbols';
+import Foldable from '@/components/Foldable';
 import SuggestionsInput from '@/components/SuggestionsInput';
 import {
   Select,
@@ -20,7 +22,7 @@ import { cn } from '@/lib/utils';
 import { type EChartsOption } from 'echarts';
 import ecStat from 'echarts-stat';
 import { debounce } from 'lodash';
-import { Save } from 'lucide-react';
+import { ChevronDown, Save } from 'lucide-react';
 import { Alert } from './ui/alert';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
@@ -202,6 +204,8 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
   const [yAxis, setYAxis] = useState<string | symbol>('');
   const updateYAxis = useMemo(() => debounce(setYAxis, 250), [setYAxis]);
 
+  const [showExtra, setShowExtra] = useState(false);
+
   let dataPoints: DataPoint[] = [];
   let rejected: RejectedResult[] = [];
 
@@ -332,90 +336,12 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-1 gap-y-3">
-        <div className={input}>
-          <Label>Graph mode</Label>
-          <Select onValueChange={(e) => setGraphMode(e as GraphMode)} value={graphMode}>
-            <SelectTrigger>
-              <SelectValue placeholder="Graph mode" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={GraphMode.Scatter}>Scatter</SelectItem>
-              <SelectItem value={GraphMode.Line}>Line</SelectItem>
-              <SelectItem value={GraphMode.Bar}>Bar</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className={input}>
-          <Label>Regression</Label>
-          <Select
-            onValueChange={(e) => {
-              const { type, order } = JSON.parse(e) as { type: string; order?: number };
-              setRegressionMode(type as Regression);
-              if (order !== undefined) {
-                setPolyRegressionOrder(order);
-              }
-            }}
-            value={JSON.stringify({
-              type: regressionMode,
-              order: regressionMode === Regression.Polynomial ? polyRegressionOrder : undefined,
-            })}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={JSON.stringify({ type: Regression.Linear })}>Linear</SelectItem>
-              <SelectItem value={JSON.stringify({ type: Regression.Exponential })}>
-                Exponential
-              </SelectItem>
-              <SelectItem value={JSON.stringify({ type: Regression.Logarithmic })}>
-                Logarithmic
-              </SelectItem>
-              <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 2 })}>
-                2-Polynomial
-              </SelectItem>
-              <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 3 })}>
-                3-Polynomial
-              </SelectItem>
-              <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 4 })}>
-                4-Polynomial
-              </SelectItem>
-              <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 5 })}>
-                5-Polynomial
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className={input}>
-          <Label>X Scale</Label>
-          <Select onValueChange={(e) => setXAxisMode(e as Scale)} value={xAxisMode}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={Scale.Linear}>Linear</SelectItem>
-              <SelectItem value={Scale.Logarithmic}>Logarithmic</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className={input}>
-          <Label>Y Scale</Label>
-          <Select onValueChange={(e) => setYAxisMode(e as Scale)} value={yAxisMode}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={Scale.Linear}>Linear</SelectItem>
-              <SelectItem value={Scale.Logarithmic}>Logarithmic</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="container grid grid-cols-1 md:grid-cols-2 gap-x-1 gap-y-3">
         <div className={input}>
           <Label htmlFor="x-axis">X Axis:</Label>
           <SuggestionsInput
             id="x-axis"
-            placeholder="Enter a JSON path (e.g. machine.cpu.count)"
+            placeholder="JSON Path"
             setInput={updateXAxis}
             suggestions={[]}
           />
@@ -430,6 +356,101 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
           />
         </div>
       </div>
+
+      <div className="flex justify-center">
+        <Button
+          onClick={() => setShowExtra((prev) => !prev)}
+          size="sm"
+          className="mb-2 px-8"
+          variant="outline"
+        >
+          <ChevronDown
+            className={cn(chevronStyle['chevronToggle'], showExtra && chevronStyle['cwToggled'])}
+          />
+        </Button>
+      </div>
+      <Foldable show={showExtra}>
+        <div className="container grid grid-cols-1 md:grid-cols-2 gap-x-1 gap-y-3">
+          <div className={input}>
+            <Label>Graph mode</Label>
+            <Select onValueChange={(e) => setGraphMode(e as GraphMode)} value={graphMode}>
+              <SelectTrigger>
+                <SelectValue placeholder="Graph mode" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={GraphMode.Scatter}>Scatter</SelectItem>
+                <SelectItem value={GraphMode.Line}>Line</SelectItem>
+                <SelectItem value={GraphMode.Bar}>Bar</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className={input}>
+            <Label>Regression</Label>
+            <Select
+              onValueChange={(e) => {
+                const { type, order } = JSON.parse(e) as { type: string; order?: number };
+                setRegressionMode(type as Regression);
+                if (order !== undefined) {
+                  setPolyRegressionOrder(order);
+                }
+              }}
+              value={JSON.stringify({
+                type: regressionMode,
+                order: regressionMode === Regression.Polynomial ? polyRegressionOrder : undefined,
+              })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={JSON.stringify({ type: Regression.Linear })}>Linear</SelectItem>
+                <SelectItem value={JSON.stringify({ type: Regression.Exponential })}>
+                  Exponential
+                </SelectItem>
+                <SelectItem value={JSON.stringify({ type: Regression.Logarithmic })}>
+                  Logarithmic
+                </SelectItem>
+                <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 2 })}>
+                  2-Polynomial
+                </SelectItem>
+                <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 3 })}>
+                  3-Polynomial
+                </SelectItem>
+                <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 4 })}>
+                  4-Polynomial
+                </SelectItem>
+                <SelectItem value={JSON.stringify({ type: Regression.Polynomial, order: 5 })}>
+                  5-Polynomial
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className={input}>
+            <Label>X Scale</Label>
+            <Select onValueChange={(e) => setXAxisMode(e as Scale)} value={xAxisMode}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={Scale.Linear}>Linear</SelectItem>
+                <SelectItem value={Scale.Logarithmic}>Logarithmic</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className={input}>
+            <Label>Y Scale</Label>
+            <Select onValueChange={(e) => setYAxisMode(e as Scale)} value={yAxisMode}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={Scale.Linear}>Linear</SelectItem>
+                <SelectItem value={Scale.Logarithmic}>Logarithmic</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Foldable>
 
       {rejected.length > 0 && (
         <div className="my-1">

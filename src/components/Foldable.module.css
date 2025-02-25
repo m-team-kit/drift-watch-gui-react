@@ -1,0 +1,17 @@
+.foldable {
+  opacity: 0;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition:
+    grid-template-rows 0.25s ease-in-out,
+    opacity 0.25s ease-in-out;
+}
+
+.foldable.unfolded {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.inner {
+  overflow-y: hidden;
+}
