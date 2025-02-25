@@ -130,7 +130,7 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (expe
   {
     accessorKey: 'schema_version',
     sortingFn: 'alphanumeric',
-    header: columnSortButton('Schema Version'),
+    header: columnSortButton('Schema'),
   },
   {
     header: 'Actions',
