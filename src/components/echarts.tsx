@@ -508,7 +508,7 @@ const EChartsDiagram: FC<EChartsDiagramProps> = ({ drifts }) => {
           )}
         </div>
       )}
-      {xAxisSet && yAxisSet && datasets.length > 0 && (
+      {xAxisSet && yAxisSet && drifts.length > 0 && (
         <>
           <div
             style={{
