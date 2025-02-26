@@ -1,13 +1,14 @@
 import { type Drift } from '@/api/models/index';
 import columnSortButton from '@/components/columnSortButton';
-import { Button } from '@/components/ui/button';
-import { Link } from '@tanstack/react-router';
 import { type ColumnDef, type Table } from '@tanstack/react-table';
 import { Eye } from 'lucide-react';
 
+import DriftParameters from '@/components/DriftParameters';
 import { Checkbox } from '@/components/ui/checkbox';
 import { signal, useComputed } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
+import { Button } from './ui/button';
+import { Dialog, DialogTrigger } from './ui/dialog';
 
 export const selectedDrifts = signal<Array<Drift>>([]);
 
@@ -125,11 +126,14 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (expe
   {
     header: 'Actions',
     cell: (ctx) => (
-      <Button asChild size="sm" className="w-full">
-        <Link to={`/experiment/${experimentId}/drift/${ctx.row.original.id}`}>
-          <Eye /> View
-        </Link>
-      </Button>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button size="sm" className="w-full">
+            <Eye /> View
+          </Button>
+        </DialogTrigger>
+        <DriftParameters drift={ctx.row.original} />
+      </Dialog>
     ),
   },
 ];
