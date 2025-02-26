@@ -3,6 +3,7 @@ import userSelfGet from '@/api/functions/userSelfGet';
 import userSelfPut from '@/api/functions/userSelfPut';
 import { type User } from '@/api/models/index';
 import { useAuth } from '@/components/AuthContext';
+import { API_BASEPATH } from '@/lib/env';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createContext, type PropsWithChildren, useContext, useEffect, useState } from 'react';
 
@@ -28,7 +29,7 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     queryFn: () =>
       userSelfGet({
         config: {
-          basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
+          basePath: API_BASEPATH,
           auth: {
             bearer: auth.status === 'logged-in' ? auth.auth.token : undefined,
           },

@@ -1,5 +1,6 @@
 import experimentIdDriftSearchPost from '@/api/functions/experimentIdDriftSearchPost';
 import { type Drift, type Experiment } from '@/api/models';
+import { useAuth } from '@/components/AuthContext';
 import ButtonBadge from '@/components/ButtonBadge';
 import { driftsColumns, selectedDrifts } from '@/components/driftsTable';
 import EChartsDiagram from '@/components/echarts';
@@ -17,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { API_BASEPATH } from '@/lib/env';
 import getQueryPagination from '@/lib/getQueryPagination';
 import { useSignals } from '@preact/signals-react/runtime';
 import { useQuery } from '@tanstack/react-query';
@@ -198,6 +200,7 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
   const [before, setBefore] = useState<Date | undefined>(undefined);
   const [after, setAfter] = useState<Date | undefined>(undefined);
 
+  const auth = useAuth();
   const drifts = useQuery({
     queryKey: [
       'experimentDrift',
@@ -235,7 +238,10 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
           }),
         },
         config: {
-          basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
+          basePath: API_BASEPATH,
+          auth: {
+            bearer: auth.status === 'logged-in' ? auth.auth.token : undefined,
+          },
         },
       }),
   });

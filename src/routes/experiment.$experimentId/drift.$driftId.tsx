@@ -2,6 +2,7 @@ import experimentIdDriftIdGet from '@/api/functions/experimentIdDriftIdGet';
 import { useAuth } from '@/components/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { API_BASEPATH } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
@@ -17,7 +18,7 @@ const RouteComponent = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         params: { experiment_id: experimentId, drift_id: driftId },
         config: {
-          basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
+          basePath: API_BASEPATH,
           auth: {
             bearer: auth.status === 'logged-in' ? auth.auth.token : undefined,
           },
@@ -38,6 +39,8 @@ const RouteComponent = () => {
     switch (drift.data.status) {
       case -1:
         return <div>Network error</div>;
+      case 403:
+        return <div>Forbidden</div>;
       case 404:
         return <div>Not found</div>;
       case 'default':

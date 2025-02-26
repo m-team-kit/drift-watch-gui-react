@@ -1,3 +1,4 @@
+import { string } from '@/lib/string';
 import {
   AuthClient,
   type ConfigEndpoints,
@@ -6,9 +7,9 @@ import {
   type Status,
 } from '@thechristophe/web-oidc-client';
 import {
+  createContext,
   type FC,
   type PropsWithChildren,
-  createContext,
   useContext,
   useEffect,
   useRef,
@@ -109,15 +110,6 @@ const processEnv = (env: {
     autoLogin: autoLogin === 'true',
   };
 };
-
-/**
- * Only return value if string
- *
- * Necessary because ImportMetaEnv is effectively Record<string, any>, not Record<string, string>
- * @param value
- */
-const string = (value: unknown): string | undefined =>
-  typeof value === 'string' ? value : undefined;
 
 const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   const [status, setStatus] = useState<Status>(LOADING);

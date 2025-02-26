@@ -4,6 +4,7 @@ import Drifts from '@/components/experiment/Drifts';
 import ExperimentPermissions from '@/components/experiment/ExperimentPermissions';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { API_BASEPATH } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
@@ -20,7 +21,7 @@ const RouteComponent = () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         params: { experiment_id: experimentId },
         config: {
-          basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
+          basePath: API_BASEPATH,
           auth: {
             bearer: auth.status === 'logged-in' ? auth.auth.token : undefined,
           },

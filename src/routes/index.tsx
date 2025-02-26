@@ -3,6 +3,7 @@ import { useAuth } from '@/components/AuthContext';
 import { experimentsColumns } from '@/components/experimentsTable';
 import Paginate from '@/components/Paginate';
 import { DataTable } from '@/components/ui/data-table';
+import { API_BASEPATH } from '@/lib/env';
 import getQueryPagination from '@/lib/getQueryPagination';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -19,7 +20,7 @@ const HomeComponent = () => {
         body: {},
         params: { page },
         config: {
-          basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
+          basePath: API_BASEPATH,
           auth: {
             bearer: auth.status === 'logged-in' ? auth.auth.token : undefined,
           },
