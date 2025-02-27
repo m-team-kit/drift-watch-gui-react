@@ -75,7 +75,7 @@ const Check = ({ drift }: CheckProps) => {
   );
 };
 
-export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = (experimentId) => [
+export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = () => [
   {
     id: 'select',
     header: ({ table }) => <HeadCheck table={table} />,
