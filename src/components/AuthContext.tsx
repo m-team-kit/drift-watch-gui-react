@@ -1,10 +1,9 @@
 import { string } from '@/lib/string';
 import {
   AuthClient,
+  AuthStatus,
   type ConfigEndpoints,
   type InitialConfiguration,
-  LOADING,
-  type Status,
 } from '@thechristophe/web-oidc-client';
 import {
   createContext,
@@ -21,6 +20,30 @@ type AuthFunctions = {
   logout: () => Promise<void>;
 };
 
+type User = {
+  sub: string;
+  eduperson_entitlement?: Array<string>;
+  name?: string;
+  preferred_username?: string;
+  email?: string;
+  email_verified?: boolean;
+};
+
+type Status =
+  | {
+      status: typeof AuthStatus.NotLoggedIn | typeof AuthStatus.Loading;
+    }
+  | {
+      status: typeof AuthStatus.LoggedIn;
+      user: User;
+      auth: {
+        token: string;
+      };
+    }
+  | {
+      status: typeof AuthStatus.Error;
+      error: string;
+    };
 type AuthContextData = Status & AuthFunctions;
 
 const AuthContext = createContext<AuthContextData | undefined>(undefined);
@@ -112,7 +135,7 @@ const processEnv = (env: {
 };
 
 const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [status, setStatus] = useState<Status>(LOADING);
+  const [status, setStatus] = useState<Status>({ status: AuthStatus.Loading });
   const authClient = useRef(
     new AuthClient(
       processEnv({
@@ -127,7 +150,17 @@ const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
         OIDC_AUTO_LOGIN: string(import.meta.env['VITE_OIDC_AUTO_LOGIN']),
       }),
       (newStatus) => {
-        setStatus(newStatus);
+        if (newStatus.status === 'logged-in') {
+          setStatus({
+            status: 'logged-in',
+            user: newStatus.user as User,
+            auth: {
+              token: newStatus.auth.token,
+            },
+          });
+        } else {
+          setStatus(newStatus);
+        }
       },
     ),
   );

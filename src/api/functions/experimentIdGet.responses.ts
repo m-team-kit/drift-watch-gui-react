@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { ExperimentSchema, type Experiment } from '../models/Experiment.js';
 import { type RequestMeta } from '../request.js';
-import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
+import { type ResponseDEFAULTERROR } from '../responses/DEFAULT_ERROR.js';
 import type ExperimentIdGetParams from './experimentIdGet.parameters.js';
 
 export const Response200Schema = ExperimentSchema;
@@ -34,7 +34,7 @@ type Request = RequestMeta & { parameters: ExperimentIdGetParams };
 type ExperimentIdGetResponse =
   | { response: Response; request: Request; status: 200; data: Response200 }
   | { response: Response; request: Request; status: 404; data: Response404 }
-  | { response: Response; request: Request; status: 'default'; data: ResponseDEFAULT_ERROR }
+  | { response: Response; request: Request; status: 'default'; data: ResponseDEFAULTERROR }
   | { response: Response; request: Request; status: -1 };
 
 export default ExperimentIdGetResponse;

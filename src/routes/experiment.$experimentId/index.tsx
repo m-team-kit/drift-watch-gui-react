@@ -2,8 +2,10 @@ import experimentIdGet from '@/api/functions/experimentIdGet';
 import { useAuth } from '@/components/AuthContext';
 import Drifts from '@/components/experiment/Drifts';
 import ExperimentPermissions from '@/components/experiment/ExperimentPermissions';
+import PublicCheckbox from '@/components/experiment/PublicCheckbox';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useUser } from '@/components/UserContext';
 import { API_BASEPATH } from '@/lib/env';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
@@ -11,6 +13,7 @@ import { ArrowLeft } from 'lucide-react';
 
 const RouteComponent = () => {
   const auth = useAuth();
+  const user = useUser();
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { experimentId } = Route.useParams();
@@ -54,6 +57,17 @@ const RouteComponent = () => {
     }
   }
 
+  const allowedToEdit =
+    experiment.data.data.permissions?.some(
+      (permission) =>
+        (permission.level === 'Manage' && user.status === 'ok' && user.id === permission.entity) ||
+        ((auth.status === 'logged-in' &&
+          auth.user.eduperson_entitlement?.some(
+            (entitlement) => permission.entity === entitlement,
+          )) ??
+          false),
+    ) ?? false;
+
   return (
     <>
       <div className="flex justify-center">
@@ -84,6 +98,7 @@ const RouteComponent = () => {
         {experiment.data.data.permissions !== undefined && (
           <TabsContent value="permissions">
             <ExperimentPermissions permissions={experiment.data.data.permissions} />
+            <PublicCheckbox experiment={experiment.data.data} editable={allowedToEdit} />
           </TabsContent>
         )}
       </Tabs>

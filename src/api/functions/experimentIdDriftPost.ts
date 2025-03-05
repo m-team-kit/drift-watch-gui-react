@@ -2,8 +2,8 @@ import { type ConfigOverrides } from '../clientConfig.js';
 
 import type ExperimentIdDriftPostParams from './experimentIdDriftPost.parameters.js';
 
-import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
-import { type ResponseUNPROCESSABLE_ENTITY } from '../responses/UNPROCESSABLE_ENTITY.js';
+import { type ResponseDEFAULTERROR } from '../responses/DEFAULT_ERROR.js';
+import { type ResponseUNPROCESSABLEENTITY } from '../responses/UNPROCESSABLE_ENTITY.js';
 import type ExperimentIdDriftPostResponse from './experimentIdDriftPost.responses.js';
 import {
   type Response201,
@@ -82,7 +82,7 @@ const experimentIdDriftPost = async (
     case 422:
       return {
         status: 422,
-        data: (await response.json()) as ResponseUNPROCESSABLE_ENTITY,
+        data: (await response.json()) as ResponseUNPROCESSABLEENTITY,
         response,
         request: requestMeta,
       };
@@ -90,7 +90,7 @@ const experimentIdDriftPost = async (
       if (response.status !== 0) {
         return {
           status: 'default',
-          data: (await response.json()) as ResponseDEFAULT_ERROR,
+          data: (await response.json()) as ResponseDEFAULTERROR,
           response,
           request: requestMeta,
         };

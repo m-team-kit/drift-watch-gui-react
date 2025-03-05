@@ -1,8 +1,8 @@
 import { Type } from '@sinclair/typebox';
 import { DriftSchema, type Drift } from '../models/Drift.js';
 import { type RequestMeta } from '../request.js';
-import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
-import { type ResponseUNPROCESSABLE_ENTITY } from '../responses/UNPROCESSABLE_ENTITY.js';
+import { type ResponseDEFAULTERROR } from '../responses/DEFAULT_ERROR.js';
+import { type ResponseUNPROCESSABLEENTITY } from '../responses/UNPROCESSABLE_ENTITY.js';
 import type ExperimentIdDriftPostParams from './experimentIdDriftPost.parameters.js';
 
 export const Response201Schema = DriftSchema;
@@ -83,8 +83,8 @@ type ExperimentIdDriftPostResponse =
   | { response: Response; request: Request; status: 401; data: Response401 }
   | { response: Response; request: Request; status: 403; data: Response403 }
   | { response: Response; request: Request; status: 404; data: Response404 }
-  | { response: Response; request: Request; status: 422; data: ResponseUNPROCESSABLE_ENTITY }
-  | { response: Response; request: Request; status: 'default'; data: ResponseDEFAULT_ERROR }
+  | { response: Response; request: Request; status: 422; data: ResponseUNPROCESSABLEENTITY }
+  | { response: Response; request: Request; status: 'default'; data: ResponseDEFAULTERROR }
   | { response: Response; request: Request; status: -1 };
 
 export default ExperimentIdDriftPostResponse;

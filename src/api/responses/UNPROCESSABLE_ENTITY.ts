@@ -1,3 +1,3 @@
 import { APIErrorModelSchema, type APIErrorModel } from '../models/APIErrorModel.js';
-export const ResponseUNPROCESSABLE_ENTITYSchema = APIErrorModelSchema;
-export type ResponseUNPROCESSABLE_ENTITY = APIErrorModel;
+export const ResponseUNPROCESSABLEENTITYSchema = APIErrorModelSchema;
+export type ResponseUNPROCESSABLEENTITY = APIErrorModel;

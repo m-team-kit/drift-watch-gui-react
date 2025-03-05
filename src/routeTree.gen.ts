@@ -10,9 +10,9 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root';
-import { Route as ExperimentExperimentIdIndexImport } from './routes/experiment.$experimentId/index';
-import { Route as IndexImport } from './routes/index';
+import { Route as rootRoute } from './routes/__root'
+import { Route as IndexImport } from './routes/index'
+import { Route as ExperimentExperimentIdIndexImport } from './routes/experiment.$experimentId/index'
 
 // Create/Update Routes
 
@@ -20,75 +20,76 @@ const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
-} as any);
+} as any)
 
-const ExperimentExperimentIdIndexRoute = ExperimentExperimentIdIndexImport.update({
-  id: '/experiment/$experimentId/',
-  path: '/experiment/$experimentId/',
-  getParentRoute: () => rootRoute,
-} as any);
+const ExperimentExperimentIdIndexRoute =
+  ExperimentExperimentIdIndexImport.update({
+    id: '/experiment/$experimentId/',
+    path: '/experiment/$experimentId/',
+    getParentRoute: () => rootRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
-      id: '/';
-      path: '/';
-      fullPath: '/';
-      preLoaderRoute: typeof IndexImport;
-      parentRoute: typeof rootRoute;
-    };
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
     '/experiment/$experimentId/': {
-      id: '/experiment/$experimentId/';
-      path: '/experiment/$experimentId';
-      fullPath: '/experiment/$experimentId';
-      preLoaderRoute: typeof ExperimentExperimentIdIndexImport;
-      parentRoute: typeof rootRoute;
-    };
+      id: '/experiment/$experimentId/'
+      path: '/experiment/$experimentId'
+      fullPath: '/experiment/$experimentId'
+      preLoaderRoute: typeof ExperimentExperimentIdIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute;
-  '/experiment/$experimentId': typeof ExperimentExperimentIdIndexRoute;
+  '/': typeof IndexRoute
+  '/experiment/$experimentId': typeof ExperimentExperimentIdIndexRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute;
-  '/experiment/$experimentId': typeof ExperimentExperimentIdIndexRoute;
+  '/': typeof IndexRoute
+  '/experiment/$experimentId': typeof ExperimentExperimentIdIndexRoute
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute;
-  '/': typeof IndexRoute;
-  '/experiment/$experimentId/': typeof ExperimentExperimentIdIndexRoute;
+  __root__: typeof rootRoute
+  '/': typeof IndexRoute
+  '/experiment/$experimentId/': typeof ExperimentExperimentIdIndexRoute
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: '/' | '/experiment/$experimentId';
-  fileRoutesByTo: FileRoutesByTo;
-  to: '/' | '/experiment/$experimentId';
-  id: '__root__' | '/' | '/experiment/$experimentId/';
-  fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/experiment/$experimentId'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/experiment/$experimentId'
+  id: '__root__' | '/' | '/experiment/$experimentId/'
+  fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  ExperimentExperimentIdIndexRoute: typeof ExperimentExperimentIdIndexRoute;
+  IndexRoute: typeof IndexRoute
+  ExperimentExperimentIdIndexRoute: typeof ExperimentExperimentIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ExperimentExperimentIdIndexRoute: ExperimentExperimentIdIndexRoute,
-};
+}
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
 /* ROUTE_MANIFEST_START
 {

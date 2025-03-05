@@ -2,7 +2,7 @@ import { type ConfigOverrides } from '../clientConfig.js';
 
 import type ExperimentIdGetParams from './experimentIdGet.parameters.js';
 
-import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
+import { type ResponseDEFAULTERROR } from '../responses/DEFAULT_ERROR.js';
 import type ExperimentIdGetResponse from './experimentIdGet.responses.js';
 import { type Response200, type Response404 } from './experimentIdGet.responses.js';
 
@@ -60,7 +60,7 @@ const experimentIdGet = async (
       if (response.status !== 0) {
         return {
           status: 'default',
-          data: (await response.json()) as ResponseDEFAULT_ERROR,
+          data: (await response.json()) as ResponseDEFAULTERROR,
           response,
           request: requestMeta,
         };

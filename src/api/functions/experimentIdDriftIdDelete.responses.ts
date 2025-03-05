@@ -1,6 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { type RequestMeta } from '../request.js';
-import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
+import { type ResponseDEFAULTERROR } from '../responses/DEFAULT_ERROR.js';
 import type ExperimentIdDriftIdDeleteParams from './experimentIdDriftIdDelete.parameters.js';
 
 export const Response401Schema = Type.Object(
@@ -78,7 +78,7 @@ type ExperimentIdDriftIdDeleteResponse =
   | { response: Response; request: Request; status: 401; data: Response401 }
   | { response: Response; request: Request; status: 403; data: Response403 }
   | { response: Response; request: Request; status: 404; data: Response404 }
-  | { response: Response; request: Request; status: 'default'; data: ResponseDEFAULT_ERROR }
+  | { response: Response; request: Request; status: 'default'; data: ResponseDEFAULTERROR }
   | { response: Response; request: Request; status: -1 };
 
 export default ExperimentIdDriftIdDeleteResponse;

@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { EntitlementsSchema, type Entitlements } from '../models/Entitlements.js';
 import { type RequestMeta } from '../request.js';
-import { type ResponseDEFAULT_ERROR } from '../responses/DEFAULT_ERROR.js';
+import { type ResponseDEFAULTERROR } from '../responses/DEFAULT_ERROR.js';
 
 export const Response200Schema = EntitlementsSchema;
 export type Response200 = Entitlements;
@@ -57,7 +57,7 @@ type EntitlementGetResponse =
   | { response: Response; request: Request; status: 200; data: Response200 }
   | { response: Response; request: Request; status: 401; data: Response401 }
   | { response: Response; request: Request; status: 403; data: Response403 }
-  | { response: Response; request: Request; status: 'default'; data: ResponseDEFAULT_ERROR }
+  | { response: Response; request: Request; status: 'default'; data: ResponseDEFAULTERROR }
   | { response: Response; request: Request; status: -1 };
 
 export default EntitlementGetResponse;
