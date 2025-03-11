@@ -1,19 +1,19 @@
 import experimentIdGet from '@/api/functions/experimentIdGet';
 import { useAuth } from '@/components/AuthContext';
 import Drifts from '@/components/experiment/Drifts';
+import { ExperimentProvider } from '@/components/experiment/experimentContext';
 import ExperimentPermissions from '@/components/experiment/ExperimentPermissions';
 import PublicCheckbox from '@/components/experiment/PublicCheckbox';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useUser } from '@/components/UserContext';
 import { API_BASEPATH } from '@/lib/env';
+import useAllowedToEdit from '@/lib/useAllowedToEdit';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 
 const RouteComponent = () => {
   const auth = useAuth();
-  const user = useUser();
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { experimentId } = Route.useParams();
@@ -32,6 +32,10 @@ const RouteComponent = () => {
       }),
     enabled: auth.status !== 'loading',
   });
+
+  const allowedToEdit = useAllowedToEdit(
+    experiment.data?.status === 200 ? experiment.data.data : undefined,
+  );
 
   if (experiment.isLoading || experiment.isPending) {
     return <div>Loading...</div>;
@@ -56,17 +60,6 @@ const RouteComponent = () => {
         );
     }
   }
-
-  const allowedToEdit =
-    experiment.data.data.permissions?.some(
-      (permission) =>
-        (permission.level === 'Manage' && user.status === 'ok' && user.id === permission.entity) ||
-        ((auth.status === 'logged-in' &&
-          auth.user.eduperson_entitlement?.some(
-            (entitlement) => permission.entity === entitlement,
-          )) ??
-          false),
-    ) ?? false;
 
   return (
     <>
@@ -96,10 +89,12 @@ const RouteComponent = () => {
           <Drifts experiment={experiment.data.data} />
         </TabsContent>
         {experiment.data.data.permissions !== undefined && (
-          <TabsContent value="permissions">
-            <ExperimentPermissions permissions={experiment.data.data.permissions} />
-            <PublicCheckbox experiment={experiment.data.data} editable={allowedToEdit} />
-          </TabsContent>
+          <ExperimentProvider experiment={experiment.data.data}>
+            <TabsContent value="permissions">
+              <ExperimentPermissions permissions={experiment.data.data.permissions} />
+              <PublicCheckbox experiment={experiment.data.data} editable={allowedToEdit} />
+            </TabsContent>
+          </ExperimentProvider>
         )}
       </Tabs>
     </>
