@@ -34,9 +34,7 @@ const ChangePermisionCell = ({ permission }: ChangePermissionCellProps) => {
           description: experiment.description,
           public: experiment.public,
           permissions: [
-            ...(experiment.permissions?.filter(
-              (permission) => permission.entity === permission.entity,
-            ) ?? []),
+            ...(experiment.permissions?.filter((p) => permission.entity !== p.entity) ?? []),
             {
               entity: permission.entity,
               level: level,
