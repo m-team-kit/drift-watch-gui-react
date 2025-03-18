@@ -47,7 +47,7 @@ const PublicCheckbox = ({ experiment, editable }: PublicCheckboxProps) => {
         }}
         id="public"
         className="me-2"
-        //disabled={!editable}
+        disabled={!editable}
       />
       <label htmlFor="public">Public</label>
     </div>
