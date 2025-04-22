@@ -1,24 +1,46 @@
-FROM node:22-alpine AS build
+ARG NODE_VERSION=22
+ARG NGINX_VERSION=latest
 
-WORKDIR /app
-COPY [".env", ".npmrc", "components.json", "eslint.config.ts", "index.html", "package.json", "pnpm-lock.yaml", "postcss.config.ts", "tailwind.config.ts", "tsconfig.json", "vite.config.ts", "./"]
-COPY src src
+# ================================== BUILDER ===================================
+FROM node:${NODE_VERSION}-alpine AS build
 
+# Environments to configure OIDC 
 ARG OIDC_CLIENT_ID
-ARG HOSTNAME
-ARG OIDC_SCOPES
-ARG OIDC_AUTHORITY
 ENV VITE_OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
+
+ARG HOSTNAME
 ENV VITE_OIDC_REDIRECT_URL=https://${HOSTNAME}/
+
+ARG OIDC_SCOPES
 ENV VITE_OIDC_SCOPES=${OIDC_SCOPES}
+
+ARG OIDC_AUTHORITY
 ENV VITE_OIDC_AUTHORITY=${OIDC_AUTHORITY}
 
+# Copy requirements (see .dockerignore)
+WORKDIR /srv
+COPY ["eslint.config.ts", "postcss.config.ts", "tailwind.config.ts", "vite.config.ts", "./"]
+COPY [".npmrc", "package.json", "pnpm-lock.yaml", "./"]
+COPY ["components.json", "tsconfig.json", "index.html", "./"]
+COPY src src
+
+# Install requirements and build
 RUN npm install -g corepack@latest && corepack enable && corepack install && pnpm install
 RUN pnpm run build
 
-FROM flashspys/nginx-static:latest AS static
-COPY --from=build /app/dist /static
+# ================================= PRODUCTION =================================
+FROM flashspys/nginx-static:${NGINX_VERSION} AS production
+
+# Install system updates and tools
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apk update
+
+# Copy and install production requirements
+WORKDIR /srv
+COPY --from=build /srv/dist /static
 # https://github.com/docker-nginx-static/docker-nginx-static/blob/main/Dockerfile#L135C28-L135C58
 # copy nginx config that always tries index.html (because SPA)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Change to non root user and expose port
 EXPOSE 80
