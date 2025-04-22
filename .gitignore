@@ -14,5 +14,6 @@ dist/
 
 # IDE
 .vscode/*
+!.vscode/launch.json
 !.vscode/extensions.json
 .idea
