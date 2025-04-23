@@ -5,17 +5,17 @@ ARG NGINX_VERSION=latest
 FROM node:${NODE_VERSION}-alpine AS base
 
 # Environments to configure OIDC 
-ARG OIDC_CLIENT_ID
-ENV VITE_OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
-
 ARG HOSTNAME
-ENV VITE_OIDC_REDIRECT_URL=https://${HOSTNAME}/
-
-ARG OIDC_SCOPES
-ENV VITE_OIDC_SCOPES=${OIDC_SCOPES}
-
+ARG OIDC_CLIENT_ID
 ARG OIDC_AUTHORITY
+ARG OIDC_SCOPES="openid profile email"
+ARG API_BASEPATH=/api/latest
+
+ENV VITE_OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
+ENV VITE_OIDC_REDIRECT_URL=https://${HOSTNAME}/
 ENV VITE_OIDC_AUTHORITY=${OIDC_AUTHORITY}
+ENV VITE_OIDC_SCOPES=${OIDC_SCOPES}
+ENV VITE_API_BASEPATH=https://${HOSTNAME}${API_BASEPATH}
 
 # Copy requirements (see .dockerignore)
 WORKDIR /srv
@@ -55,8 +55,8 @@ EXPOSE 80
 FROM base AS development
 
 # Expose the Vite development server port
-EXPOSE 3001
+EXPOSE 80
 
 # Define entrypoint and default command
 ENTRYPOINT ["pnpm", "run"]
-CMD ["dev", "--host", "--no-open"]
+CMD ["dev", "--host", "--port=80", "--no-open"]
