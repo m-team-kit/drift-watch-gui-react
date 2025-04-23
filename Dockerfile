@@ -1,8 +1,8 @@
 ARG NODE_VERSION=22
 ARG NGINX_VERSION=latest
 
-# ================================== BUILDER ===================================
-FROM node:${NODE_VERSION}-alpine AS build
+# ==================================== BASE ====================================
+FROM node:${NODE_VERSION}-alpine AS base
 
 # Environments to configure OIDC 
 ARG OIDC_CLIENT_ID
@@ -24,8 +24,14 @@ COPY [".npmrc", "package.json", "pnpm-lock.yaml", "./"]
 COPY ["components.json", "tsconfig.json", "index.html", "./"]
 COPY src src
 
-# Install requirements and build
-RUN npm install -g corepack@latest && corepack enable && corepack install && pnpm install
+# Install system updates and tools
+RUN npm install -g corepack@latest && corepack enable && corepack install
+RUN pnpm install
+
+# ================================== BUILDER ===================================
+FROM base AS build
+
+# Build the application
 RUN pnpm run build
 
 # ================================= PRODUCTION =================================
@@ -44,3 +50,13 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Change to non root user and expose port
 EXPOSE 80
+
+# ================================= DEVELOPMENT ================================
+FROM base AS development
+
+# Expose the Vite development server port
+EXPOSE 3001
+
+# Define entrypoint and default command
+ENTRYPOINT ["pnpm", "run"]
+CMD ["dev", "--host", "--no-open"]
