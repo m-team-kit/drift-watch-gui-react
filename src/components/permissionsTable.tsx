@@ -132,10 +132,12 @@ const DeletePermission = ({ permission, className }: DeletePermissionProps) => {
   );
 };
 
-export const permissionsColumns: ColumnDef<Permission>[] = [
+export const permissionsColumns = (
+  onSortChange: (columnId: string, direction: 'asc' | 'desc' | undefined) => void,
+): ColumnDef<Permission>[] => [
   {
     accessorKey: 'entity',
-    header: columnSortButton('Entity'),
+    header: columnSortButton('Entity', onSortChange),
   },
   {
     accessorKey: 'level',

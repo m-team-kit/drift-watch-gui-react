@@ -7,18 +7,27 @@ import { API_BASEPATH } from '@/lib/env';
 import getQueryPagination from '@/lib/getQueryPagination';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import { type SortingState } from '@tanstack/react-table';
+import { useCallback, useState } from 'react';
 
 const HomeComponent = () => {
   const auth = useAuth();
 
   const [page, setPage] = useState(1);
+  const [sorting, setSorting] = useState<SortingState>([]); // Correctly typed sorting state
+
   const experiments = useQuery({
-    queryKey: ['experiments', page],
+    queryKey: ['experiments', page, sorting],
     queryFn: () =>
       experimentSearchPost({
-        body: {},
-        params: { page },
+        body: {}, // Body remains empty
+        params: {
+          page,
+          ...(sorting.length > 0 && {
+            sort_by: sorting[0].id, // Use the first sorting column
+            order_by: sorting[0].desc ? 'desc' : 'asc',
+          }),
+        },
         config: {
           basePath: API_BASEPATH,
           auth: {
@@ -30,6 +39,14 @@ const HomeComponent = () => {
   });
 
   const pagination = getQueryPagination(experiments);
+
+  const handleSortChange = useCallback(
+    (columnId: string, direction: 'asc' | 'desc' | undefined) => {
+      setSorting(direction ? [{ id: columnId, desc: direction === 'desc' }] : []);
+      setPage(1); // Reset to the first page when sorting changes
+    },
+    [],
+  );
 
   if (experiments.isLoading || experiments.isPending) {
     return <div>Loading...</div>;
@@ -62,7 +79,7 @@ const HomeComponent = () => {
 
   return (
     <>
-      <DataTable columns={experimentsColumns} data={experiments.data.data} />
+      <DataTable columns={experimentsColumns(handleSortChange)} data={experiments.data.data} />
       <Paginate
         page={page}
         setPage={setPage}

@@ -24,19 +24,21 @@ const ViewExperimentButton = ({ experiment }: ViewExperimentButtonProps) => {
   );
 };
 
-export const experimentsColumns: ColumnDef<Experiment>[] = [
+export const experimentsColumns = (
+  onSortChange: (columnId: string, direction: 'asc' | 'desc' | undefined) => void,
+): ColumnDef<Experiment>[] => [
   {
     accessorKey: 'name',
-    header: columnSortButton('Name'),
+    header: columnSortButton('Name', onSortChange),
   },
   {
     accessorKey: 'created_at',
-    header: columnSortButton('Created'),
+    header: columnSortButton('Created', onSortChange),
     cell: (ctx) => new Date(ctx.row.original.created_at).toLocaleString(),
   },
   {
     accessorKey: 'public',
-    header: columnSortButton('Public'),
+    header: columnSortButton('Public', onSortChange),
   },
   {
     header: 'Actions',

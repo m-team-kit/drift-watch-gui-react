@@ -31,7 +31,7 @@ import {
 } from '@tanstack/react-table';
 import { addDays, addSeconds } from 'date-fns';
 import { Plus } from 'lucide-react';
-import { type Dispatch, type FC, type SetStateAction, useMemo, useState } from 'react';
+import { type Dispatch, type FC, type SetStateAction, useCallback, useMemo, useState } from 'react';
 
 // Function to deselect drifts that do not match the provided tags
 const deselectNotMatchingTags = (tags: string[]) => {
@@ -264,7 +264,21 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
   const pagination = getQueryPagination(drifts); // Pagination helper
 
   const [sorting, setSorting] = useState<SortingState>([]); // Sorting state
-  const columns = useMemo(() => driftsColumns(experiment.id), [experiment.id]); // Table columns
+
+  // Function to handle sorting changes
+  const handleSortChange = useCallback(
+    (columnId: string, direction: 'asc' | 'desc' | undefined) => {
+      setSorting(direction ? [{ id: columnId, desc: direction === 'desc' }] : []);
+      setPage(1); // Reset to the first page when sorting changes
+    },
+    [], // Dependencies array
+  );
+
+  // Pass the sorting handler to driftsColumns
+  const columns = useMemo(
+    () => driftsColumns(experiment.id, handleSortChange),
+    [experiment.id, handleSortChange],
+  );
 
   // React Table instance
   const table = useReactTable({
