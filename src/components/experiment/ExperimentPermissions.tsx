@@ -7,7 +7,8 @@ type ExperimentPermissmissionsProps = {
   permissions: Required<Experiment>['permissions'];
 };
 const ExperimentPermissions: FC<ExperimentPermissmissionsProps> = ({ permissions }) => {
-  return <DataTable data={permissions} columns={permissionsColumns} />;
+  const onSortChange = (columnId: string, direction: 'asc' | 'desc' | undefined) => {};
+  return <DataTable data={permissions} columns={permissionsColumns(onSortChange)} />;
 };
 
 export default ExperimentPermissions;
