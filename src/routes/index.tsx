@@ -2,23 +2,35 @@ import experimentSearchPost from '@/api/functions/experimentSearchPost';
 import { useAuth } from '@/components/AuthContext';
 import { experimentsColumns } from '@/components/experimentsTable';
 import Paginate from '@/components/Paginate';
-import { DataTable } from '@/components/ui/data-table';
+import { TableContent } from '@/components/ui/data-table';
 import { API_BASEPATH } from '@/lib/env';
 import getQueryPagination from '@/lib/getQueryPagination';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
+import {
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
+  useReactTable,
+} from '@tanstack/react-table';
+import { useCallback, useMemo, useState } from 'react';
 
 const HomeComponent = () => {
   const auth = useAuth();
 
   const [page, setPage] = useState(1);
+  const [sorting, setSorting] = useState<SortingState>([]); // Correctly typed sorting state
+
   const experiments = useQuery({
-    queryKey: ['experiments', page],
+    queryKey: ['experiments', page, sorting],
     queryFn: () =>
       experimentSearchPost({
-        body: {},
-        params: { page },
+        body: {}, // Body remains empty
+        params: {
+          page,
+          sort_by: sorting[0]?.id,
+          order_by: sorting[0]?.desc ? 'desc' : 'asc',
+        },
         config: {
           basePath: API_BASEPATH,
           auth: {
@@ -30,6 +42,29 @@ const HomeComponent = () => {
   });
 
   const pagination = getQueryPagination(experiments);
+
+  const handleSortChange = useCallback(
+    (columnId: string, direction: 'asc' | 'desc' | undefined) => {
+      setSorting(direction ? [{ id: columnId, desc: direction === 'desc' }] : []);
+      setPage(1); // Reset to the first page when sorting changes
+    },
+    [],
+  );
+
+  // Pass the handler to experimentsColumns
+  const columns = useMemo(() => experimentsColumns(handleSortChange), [handleSortChange]);
+
+  // React Table instance
+  const table = useReactTable({
+    data: experiments.data?.status === 200 ? experiments.data.data : [],
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
+  });
 
   if (experiments.isLoading || experiments.isPending) {
     return <div>Loading...</div>;
@@ -62,7 +97,9 @@ const HomeComponent = () => {
 
   return (
     <>
-      <DataTable columns={experimentsColumns} data={experiments.data.data} />
+      {/* Table content */}
+      <TableContent table={table} columns={columns} />
+      {/* Pagination */}
       <Paginate
         page={page}
         setPage={setPage}

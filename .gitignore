@@ -2,6 +2,7 @@
 .DS_Store
 *.local
 *.log*
+.env
 
 # Dist
 node_modules
@@ -14,5 +15,6 @@ dist/
 
 # IDE
 .vscode/*
+!.vscode/launch.json
 !.vscode/extensions.json
 .idea

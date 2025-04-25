@@ -18,7 +18,7 @@ and MongoDB format.
 const experimentSearchPost = async (
   parameters: ExperimentSearchPostParams & { config?: ConfigOverrides },
 ): Promise<ExperimentSearchPostResponse> => {
-  const { body, params: { page, page_size } = {}, config } = parameters;
+  const { body, params: { page, page_size, sort_by, order_by } = {}, config } = parameters;
   const url = `${config?.basePath ?? ''}/experiment/search`;
   const localFetch = config?.fetch ?? fetch;
   const headers = new Headers(config?.defaultParams?.headers);
@@ -36,7 +36,12 @@ const experimentSearchPost = async (
   };
 
   const response = await localFetch(
-    `${url}?${new URLSearchParams({ ...(page != null && { ['page']: page.toString() }), ...(page_size != null && { ['page_size']: page_size.toString() }) }).toString()}`,
+    `${url}?${new URLSearchParams({
+      ...(page != null && { ['page']: page.toString() }),
+      ...(page_size != null && { ['page_size']: page_size.toString(), }),
+      ...(sort_by != null && { ['sort_by']: sort_by }),
+      ...(order_by != null && { ['order_by']: order_by }),
+    }).toString()}`,
     {
       ...config?.defaultParams,
       method,

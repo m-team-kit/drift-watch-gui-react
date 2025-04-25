@@ -75,7 +75,10 @@ const Check = ({ drift }: CheckProps) => {
   );
 };
 
-export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = () => [
+export const driftsColumns: (
+  experimentId: string,
+  onSortChange: (columnId: string, direction: 'asc' | 'desc' | undefined) => void,
+) => ColumnDef<Drift>[] = (_, onSortChange) => [
   {
     id: 'select',
     header: ({ table }) => <HeadCheck table={table} />,
@@ -83,30 +86,14 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = () =>
     enableSorting: false,
     enableHiding: false,
   },
-  /*
-  {
-    accessorKey: 'id',
-    header: 'ID',
-    cell: (ctx) => (
-      <div
-        style={{
-          overflowWrap: 'break-word',
-          maxWidth: '10ch',
-        }}
-      >
-        {ctx.row.original.id.replace('-', '-\u200B')}
-      </div>
-    ),
-  },
-   */
   {
     accessorKey: 'created_at',
-    header: columnSortButton('Created'),
+    header: columnSortButton('Created', onSortChange),
     cell: (ctx) => new Date(ctx.row.original.created_at).toLocaleString(),
   },
   {
     accessorKey: 'job_status',
-    header: columnSortButton('Status'),
+    header: columnSortButton('Status', onSortChange),
   },
   {
     accessorKey: 'tags',
@@ -115,13 +102,13 @@ export const driftsColumns: (experimentId: string) => ColumnDef<Drift>[] = () =>
   },
   {
     accessorKey: 'drift_detected',
-    header: columnSortButton('Drift'),
+    header: columnSortButton('Drift', onSortChange),
     cell: (ctx) => (ctx.row.original.drift_detected ? 'Yes' : 'No'),
   },
   {
     accessorKey: 'schema_version',
     sortingFn: 'alphanumeric',
-    header: columnSortButton('Schema'),
+    header: columnSortButton('Schema', onSortChange),
   },
   {
     header: 'Actions',

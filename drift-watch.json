@@ -1,7 +1,7 @@
 {
   "security": [
     {
-      "bearerAuth": []
+      "bearerAuth": [ ]
     }
   ],
   "info": {
@@ -47,7 +47,7 @@
           "errors": {
             "type": "object",
             "description": "Errors",
-            "additionalProperties": {}
+            "additionalProperties": { }
           }
         }
       },
@@ -87,11 +87,13 @@
             }
           }
         },
-        "required": ["items"]
+        "required": [
+          "items"
+        ]
       },
       "Schema": {
         "type": "object",
-        "properties": {}
+        "properties": { }
       },
       "Permission": {
         "type": "object",
@@ -100,10 +102,18 @@
             "type": "string"
           },
           "level": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Read",
+              "Edit",
+              "Manage"
+            ]
           }
         },
-        "required": ["entity", "level"],
+        "required": [
+          "entity",
+          "level"
+        ],
         "additionalProperties": false
       },
       "Experiment": {
@@ -130,13 +140,17 @@
           },
           "permissions": {
             "type": "array",
-            "default": [],
+            "default": [ ],
             "items": {
               "$ref": "#/components/schemas/Permission"
             }
           }
         },
-        "required": ["created_at", "id", "name"]
+        "required": [
+          "created_at",
+          "id",
+          "name"
+        ]
       },
       "CreateExperiment": {
         "type": "object",
@@ -153,13 +167,15 @@
           },
           "permissions": {
             "type": "array",
-            "default": [],
+            "default": [ ],
             "items": {
               "$ref": "#/components/schemas/Permission"
             }
           }
         },
-        "required": ["name"]
+        "required": [
+          "name"
+        ]
       },
       "Drift": {
         "type": "object",
@@ -175,11 +191,15 @@
           },
           "job_status": {
             "type": "string",
-            "enum": ["Running", "Completed", "Failed"]
+            "enum": [
+              "Running",
+              "Completed",
+              "Failed"
+            ]
           },
           "tags": {
             "type": "array",
-            "default": [],
+            "default": [ ],
             "items": {
               "type": "string",
               "minLength": 1,
@@ -194,26 +214,37 @@
           },
           "parameters": {
             "type": "object",
-            "default": {},
-            "additionalProperties": {}
+            "default": { },
+            "additionalProperties": { }
           },
           "schema_version": {
             "type": "string",
             "readOnly": true
           }
         },
-        "required": ["created_at", "drift_detected", "id", "job_status", "model", "schema_version"]
+        "required": [
+          "created_at",
+          "drift_detected",
+          "id",
+          "job_status",
+          "model",
+          "schema_version"
+        ]
       },
       "CreateDrift": {
         "type": "object",
         "properties": {
           "job_status": {
             "type": "string",
-            "enum": ["Running", "Completed", "Failed"]
+            "enum": [
+              "Running",
+              "Completed",
+              "Failed"
+            ]
           },
           "tags": {
             "type": "array",
-            "default": [],
+            "default": [ ],
             "items": {
               "type": "string",
               "minLength": 1,
@@ -228,11 +259,15 @@
           },
           "parameters": {
             "type": "object",
-            "default": {},
-            "additionalProperties": {}
+            "default": { },
+            "additionalProperties": { }
           }
         },
-        "required": ["drift_detected", "job_status", "model"]
+        "required": [
+          "drift_detected",
+          "job_status",
+          "model"
+        ]
       },
       "User": {
         "type": "object",
@@ -260,7 +295,10 @@
             "readOnly": true
           }
         },
-        "required": ["created_at", "id"]
+        "required": [
+          "created_at",
+          "id"
+        ]
       }
     },
     "responses": {
@@ -323,11 +361,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -343,11 +385,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -358,11 +404,63 @@
           }
         },
         "summary": "Return list of entitlements based on the provided OIDC token.",
-        "tags": ["Entitlements"]
+        "tags": [
+          "Entitlements"
+        ]
       }
     },
     "/experiment/search": {
       "post": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "type": "string",
+              "default": "created_at",
+              "enum": [
+                "created_at",
+                "name",
+                "public"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "order_by",
+            "schema": {
+              "type": "string",
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": false
+          }
+        ],
         "responses": {
           "422": {
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
@@ -399,31 +497,10 @@
             }
           }
         },
-        "parameters": [
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer",
-              "default": 1,
-              "minimum": 1
-            },
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "page_size",
-            "schema": {
-              "type": "integer",
-              "default": 10,
-              "minimum": 1,
-              "maximum": 100
-            },
-            "required": false
-          }
-        ],
         "summary": "Get a paginated list of experiments based on the provided JSON query\nand MongoDB format.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       }
     },
     "/experiment": {
@@ -445,6 +522,30 @@
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
           },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -452,11 +553,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -472,11 +577,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -497,7 +606,9 @@
           }
         },
         "summary": "Create a new experiment record in the database.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       }
     },
     "/experiment/{experiment_id}": {
@@ -530,6 +641,10 @@
                     "status": {
                       "type": "string",
                       "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
                     }
                   }
                 }
@@ -538,7 +653,9 @@
           }
         },
         "summary": "Retrieve an experiment by its ID from the database.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       },
       "put": {
         "responses": {
@@ -572,6 +689,34 @@
                     "status": {
                       "type": "string",
                       "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
                     }
                   }
                 }
@@ -585,11 +730,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -605,11 +754,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -630,7 +783,9 @@
           }
         },
         "summary": "Update a experiment record with the given JSON data.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       },
       "delete": {
         "responses": {
@@ -654,6 +809,10 @@
                     "status": {
                       "type": "string",
                       "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
                     }
                   }
                 }
@@ -667,11 +826,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -687,11 +850,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -702,7 +869,9 @@
           }
         },
         "summary": "Delete a experiment record from the database.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       },
       "parameters": [
         {
@@ -718,6 +887,58 @@
     },
     "/experiment/{experiment_id}/drift/search": {
       "post": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "type": "string",
+              "default": "created_at",
+              "enum": [
+                "created_at",
+                "job_status",
+                "model",
+                "drift_detected",
+                "schema_version"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "order_by",
+            "schema": {
+              "type": "string",
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": false
+          }
+        ],
         "responses": {
           "422": {
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
@@ -742,6 +963,54 @@
           },
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "requestBody": {
@@ -754,31 +1023,10 @@
             }
           }
         },
-        "parameters": [
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer",
-              "default": 1,
-              "minimum": 1
-            },
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "page_size",
-            "schema": {
-              "type": "integer",
-              "default": 10,
-              "minimum": 1,
-              "maximum": 100
-            },
-            "required": false
-          }
-        ],
         "summary": "Get a paginated list of drift Jobs based on the provided JSON query\nand MongoDB format.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       },
       "parameters": [
         {
@@ -811,6 +1059,30 @@
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
           },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "Error code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -818,11 +1090,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -838,11 +1114,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -863,7 +1143,9 @@
           }
         },
         "summary": "Create a new drift Job record in the database.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       },
       "parameters": [
         {
@@ -893,6 +1175,30 @@
           "default": {
             "$ref": "#/components/responses/DEFAULT_ERROR"
           },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -907,6 +1213,10 @@
                     "status": {
                       "type": "string",
                       "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
                     }
                   }
                 }
@@ -915,7 +1225,9 @@
           }
         },
         "summary": "Retrieve a drift job by its id from the database.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       },
       "put": {
         "responses": {
@@ -949,6 +1261,10 @@
                     "status": {
                       "type": "string",
                       "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
                     }
                   }
                 }
@@ -962,11 +1278,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -982,11 +1302,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1007,7 +1331,9 @@
           }
         },
         "summary": "Update a drift job record with the given JSON data.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       },
       "delete": {
         "responses": {
@@ -1031,6 +1357,10 @@
                     "status": {
                       "type": "string",
                       "description": "Error name"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Error message"
                     }
                   }
                 }
@@ -1044,11 +1374,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1064,11 +1398,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1079,7 +1417,9 @@
           }
         },
         "summary": "Delete a drift job record from the database.",
-        "tags": ["Experiments"]
+        "tags": [
+          "Experiments"
+        ]
       },
       "parameters": [
         {
@@ -1104,6 +1444,57 @@
     },
     "/user/search": {
       "post": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "type": "string",
+              "default": "created_at",
+              "enum": [
+                "created_at",
+                "email",
+                "subject",
+                "issuer"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "order_by",
+            "schema": {
+              "type": "string",
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1
+            },
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "required": false
+          }
+        ],
         "responses": {
           "422": {
             "$ref": "#/components/responses/UNPROCESSABLE_ENTITY"
@@ -1136,11 +1527,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1156,11 +1551,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1180,31 +1579,10 @@
             }
           }
         },
-        "parameters": [
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer",
-              "default": 1,
-              "minimum": 1
-            },
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "page_size",
-            "schema": {
-              "type": "integer",
-              "default": 10,
-              "minimum": 1,
-              "maximum": 100
-            },
-            "required": false
-          }
-        ],
         "summary": "Retrieve a paginated list of users based on the provided JSON query\nand MongoDB format.",
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/user": {
@@ -1254,11 +1632,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1274,11 +1656,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1289,7 +1675,9 @@
           }
         },
         "summary": "Register and create the token owner as new user.",
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/user/self": {
@@ -1315,11 +1703,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1335,11 +1727,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1350,7 +1746,9 @@
           }
         },
         "summary": "Retrieves the user information based on the provided auth token.",
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       },
       "put": {
         "responses": {
@@ -1374,11 +1772,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1394,11 +1796,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Error name"
+                    "code": {
+                      "type": "integer",
+                      "description": "HTTP status code"
                     },
-                    "error_description": {
+                    "status": {
+                      "type": "string",
+                      "description": "HTTP status message"
+                    },
+                    "message": {
                       "type": "string",
                       "description": "Error message"
                     }
@@ -1409,7 +1815,9 @@
           }
         },
         "summary": "Updates the user information based on the provided auth token.",
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     }
   },
