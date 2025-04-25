@@ -206,10 +206,9 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
 
   // State variables for filters and pagination
   const [page, setPage] = useState(1);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [tagsFilter, setTagsFilter] = useState<string[]>([]);
-  const [completionFilter, setCompletionFilter] = useState<Drift['job_status'] | undefined>(
-    undefined,
-  );
+  const [completionFilter, setCompletionFilter] = useState<Drift['job_status'] | undefined>(undefined);
   const [before, setBefore] = useState<Date | undefined>(undefined);
   const [after, setAfter] = useState<Date | undefined>(undefined);
 
@@ -221,6 +220,7 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
       'experimentDrift',
       experiment.id,
       page,
+      sorting,
       tagsFilter.join(','),
       completionFilter,
       before,
@@ -231,6 +231,8 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
         params: {
           experiment_id: experiment.id,
           page,
+          sort_by: sorting[0]?.id,
+          order_by: sorting[0]?.desc ? 'desc' : 'asc',
         },
         body: {
           ...(tagsFilter.length > 0 && {
@@ -262,8 +264,6 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
   });
 
   const pagination = getQueryPagination(drifts); // Pagination helper
-
-  const [sorting, setSorting] = useState<SortingState>([]); // Sorting state
 
   // Function to handle sorting changes
   const handleSortChange = useCallback(

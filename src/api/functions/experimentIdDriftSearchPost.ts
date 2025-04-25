@@ -24,7 +24,7 @@ const experimentIdDriftSearchPost = async (
 ): Promise<ExperimentIdDriftSearchPostResponse> => {
   const {
     body,
-    params: { page, page_size, experiment_id },
+    params: { page, page_size, sort_by, order_by, experiment_id },
     config,
   } = parameters;
   const url = `${config?.basePath ?? ''}/experiment/${encodeURIComponent(experiment_id.toString())}/drift/search`;
@@ -44,7 +44,12 @@ const experimentIdDriftSearchPost = async (
   };
 
   const response = await localFetch(
-    `${url}?${new URLSearchParams({ ...(page != null && { ['page']: page.toString() }), ...(page_size != null && { ['page_size']: page_size.toString() }) }).toString()}`,
+    `${url}?${new URLSearchParams({
+      ...(page != null && { ['page']: page.toString() }),
+      ...(page_size != null && { ['page_size']: page_size.toString() }),
+      ...(sort_by != null && { ['sort_by']: sort_by.toString() }),
+      ...(order_by != null && { ['order_by']: order_by.toString() }),
+    }).toString()}`,
     {
       ...config?.defaultParams,
       method,
