@@ -18,13 +18,15 @@ const Footer: FC = () => (
       <div className={styles.legals_div}>
         <ul className={styles.legals}>
           <li>
+            <Link to="https://ai4eosc.eu/platform/acceptable-use-policy/">
+              Acceptable Use Policy
+            </Link>
+          </li>
+          <li>
+            <Link to="https://ai4eosc.eu/privacy-policy/">Privacy Policy</Link>
+          </li>
+          <li>
             <Link to="https://www.scc.kit.edu/en/legals.php">Legals</Link>
-          </li>
-          <li>
-            <Link to="/privacy-policy">Privacy Policy</Link>
-          </li>
-          <li>
-            <Link to="/aupolicy">Acceptable Use Policy</Link>
           </li>
         </ul>
       </div>

@@ -11,17 +11,10 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as PrivacyPolicyImport } from './routes/PrivacyPolicy'
 import { Route as IndexImport } from './routes/index'
 import { Route as ExperimentExperimentIdIndexImport } from './routes/experiment.$experimentId/index'
 
 // Create/Update Routes
-
-const PrivacyPolicyRoute = PrivacyPolicyImport.update({
-  id: '/PrivacyPolicy',
-  path: '/PrivacyPolicy',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -47,13 +40,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/PrivacyPolicy': {
-      id: '/PrivacyPolicy'
-      path: '/PrivacyPolicy'
-      fullPath: '/PrivacyPolicy'
-      preLoaderRoute: typeof PrivacyPolicyImport
-      parentRoute: typeof rootRoute
-    }
     '/experiment/$experimentId/': {
       id: '/experiment/$experimentId/'
       path: '/experiment/$experimentId'
@@ -68,41 +54,36 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/PrivacyPolicy': typeof PrivacyPolicyRoute
   '/experiment/$experimentId': typeof ExperimentExperimentIdIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/PrivacyPolicy': typeof PrivacyPolicyRoute
   '/experiment/$experimentId': typeof ExperimentExperimentIdIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/PrivacyPolicy': typeof PrivacyPolicyRoute
   '/experiment/$experimentId/': typeof ExperimentExperimentIdIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/PrivacyPolicy' | '/experiment/$experimentId'
+  fullPaths: '/' | '/experiment/$experimentId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/PrivacyPolicy' | '/experiment/$experimentId'
-  id: '__root__' | '/' | '/PrivacyPolicy' | '/experiment/$experimentId/'
+  to: '/' | '/experiment/$experimentId'
+  id: '__root__' | '/' | '/experiment/$experimentId/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ExperimentExperimentIdIndexRoute: typeof ExperimentExperimentIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ExperimentExperimentIdIndexRoute: ExperimentExperimentIdIndexRoute,
 }
 
@@ -117,15 +98,11 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/PrivacyPolicy",
         "/experiment/$experimentId/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/PrivacyPolicy": {
-      "filePath": "PrivacyPolicy.tsx"
     },
     "/experiment/$experimentId/": {
       "filePath": "experiment.$experimentId/index.tsx"
