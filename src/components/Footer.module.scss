@@ -71,12 +71,26 @@
   margin-left: 1rem;
 }
 
-@media (max-width: 768px) {
-  .footer .eu_logo {
-    height: 2.5rem;
+@media (max-width: 900px) {
+  .footer .container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .footer .eu_logo_div,
+  .footer .ai4eosc_logo_div {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .footer .eu_text_div,
+  .footer .legals_div {
+    text-align: center;
+    width: 100%;
   }
 }
 
 body {
-  padding-bottom: 4rem; // Add padding to accommodate the footer height
+  padding-bottom: 4rem;
 }
