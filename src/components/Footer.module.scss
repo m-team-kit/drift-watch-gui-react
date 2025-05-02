@@ -4,7 +4,7 @@
   padding: 30px 20px;
   margin-top: 30px;
   font-size: 0.8rem;
-  position: fixed;
+  position: static; // Change from fixed to static to prevent blocking content
   bottom: 1rem;
   left: 0;
   width: 100%;
@@ -75,4 +75,8 @@
   .footer .eu_logo {
     height: 2.5rem;
   }
+}
+
+body {
+  padding-bottom: 4rem; // Add padding to accommodate the footer height
 }
