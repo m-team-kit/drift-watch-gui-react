@@ -1,10 +1,10 @@
 import AuthProvider from '@/components/AuthContext';
-import Footer from '@/components/Footer'; // Import Footer component
-import LoginButton from '@/components/LoginButton';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { UserProvider } from '@/components/UserContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Link, Outlet, createRootRoute } from '@tanstack/react-router';
+import { Outlet, createRootRoute } from '@tanstack/react-router';
 import { lazy } from 'react';
 import '../main.css';
 
@@ -39,25 +39,13 @@ const RootComponent = () => (
     <QueryClientProvider client={queryClient}>
       <UserProvider>
         <TooltipProvider>
-          <div className="p-2 flex gap-2 text-lg justify-between">
-            <Link
-              to="/"
-              activeProps={{
-                className: 'font-bold',
-              }}
-              activeOptions={{ exact: true }}
-            >
-              Experiments
-            </Link>
-            <LoginButton />
-          </div>
-          <hr />
+          <Header />
           <div className="p-2">
             <Outlet />
           </div>
           <RouterDevtools />
           <QueryDevTools />
-          <Footer /> {/* Add Footer component here */}
+          <Footer />
         </TooltipProvider>
       </UserProvider>
     </QueryClientProvider>

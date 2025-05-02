@@ -1,0 +1,35 @@
+.app_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.home_link {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  margin-right: 10px;
+  display: inline-block;
+}
+
+.home_button {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #0080ff;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.home_button:hover {
+  text-decoration: underline;
+}
+
+.login {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
