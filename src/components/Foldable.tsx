@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { type FC, type PropsWithChildren } from 'react';
 
-import styles from './Foldable.module.css';
+import styles from './Foldable.module.scss';
 
 type FoldableProps = {
   show?: boolean;

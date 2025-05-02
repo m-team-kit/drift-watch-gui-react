@@ -7,7 +7,7 @@ import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 
 import { type Drift } from '@/api/models';
-import chevronStyle from '@/components/ChevronToggle.module.css';
+import chevronStyle from '@/components/ChevronToggle.module.scss';
 import { Time } from '@/components/dataSymbols';
 import Foldable from '@/components/Foldable';
 import SuggestionsInput from '@/components/SuggestionsInput';

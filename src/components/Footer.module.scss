@@ -1,0 +1,72 @@
+.footer {
+  background-color: rgb(38, 39, 39);
+  color: #ffffff;
+  padding: 20px 20px;
+  margin-top: 30px;
+  font-size: 0.8rem;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.footer .container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: nowrap;
+  gap: 0rem;
+}
+
+.footer .eu_logo_div,
+.footer .ai4eosc_logo_div {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.legals {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+}
+
+.footer li {
+  list-style: none;
+  position: relative;
+  margin: 0;
+  padding: 0.2em;
+}
+
+.footer ul {
+  gap: 0rem;
+}
+
+.footer a {
+  text-decoration: none;
+  color: #ffffff;
+  transition: color 0.3s;
+}
+
+.footer a:hover {
+  color: #cccccc;
+}
+
+.footer .eu_logo {
+  height: 4rem;
+  width: auto;
+  margin-right: 1rem;
+}
+
+.footer .ai4eosc_logo {
+  height: 4rem;
+  width: auto;
+  margin-left: 1rem;
+}

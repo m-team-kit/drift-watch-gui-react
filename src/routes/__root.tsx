@@ -1,4 +1,5 @@
 import AuthProvider from '@/components/AuthContext';
+import Footer from '@/components/Footer'; // Import Footer component
 import LoginButton from '@/components/LoginButton';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { UserProvider } from '@/components/UserContext';
@@ -56,6 +57,7 @@ const RootComponent = () => (
           </div>
           <RouterDevtools />
           <QueryDevTools />
+          <Footer /> {/* Add Footer component here */}
         </TooltipProvider>
       </UserProvider>
     </QueryClientProvider>
