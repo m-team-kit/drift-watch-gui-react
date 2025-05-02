@@ -70,3 +70,9 @@
   width: auto;
   margin-left: 1rem;
 }
+
+@media (max-width: 768px) {
+  .footer .eu_logo {
+    height: 2.5rem;
+  }
+}
