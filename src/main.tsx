@@ -8,14 +8,17 @@ const router = createRouter({
   defaultPreload: 'intent',
 });
 
-/*
-// Register things for typesafety
-declare module '@tanstack/react-router' {
-  type Register = {
-    router: typeof router;
-  };
-}
-*/
+// Dynamically add the favicon
+const setFavicon = (iconPath: string) => {
+  const link = document.createElement('link');
+  link.rel = 'icon';
+  link.type = 'image/svg+xml';
+  link.href = iconPath;
+  document.head.appendChild(link);
+};
+
+// Call the function to set the favicon
+setFavicon('/drift_watch-logo.svg');
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const rootElement = document.getElementById('app')!;

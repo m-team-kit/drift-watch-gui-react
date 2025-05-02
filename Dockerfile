@@ -22,6 +22,7 @@ WORKDIR /srv
 COPY ["eslint.config.ts", "postcss.config.ts", "tailwind.config.ts", "vite.config.ts", "./"]
 COPY [".npmrc", "package.json", "pnpm-lock.yaml", "./"]
 COPY ["components.json", "tsconfig.json", "index.html", "./"]
+COPY ["public", "./"]
 COPY src src
 
 # Install system updates and tools
