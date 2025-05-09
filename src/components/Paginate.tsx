@@ -30,7 +30,7 @@ const Paginate = ({ page, setPage, pagination, className }: PaginateProps) => {
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            disabled={pagination?.previous_page !== undefined}
+            disabled={pagination?.previous_page === undefined}
             onClick={() =>
               pagination?.previous_page !== undefined
                 ? setPage(pagination.previous_page)
@@ -106,7 +106,7 @@ const Paginate = ({ page, setPage, pagination, className }: PaginateProps) => {
 
         <PaginationItem>
           <PaginationNext
-            disabled={pagination?.next_page !== undefined}
+            disabled={pagination?.total_pages !== undefined && page >= pagination.total_pages}
             onClick={() =>
               pagination?.next_page !== undefined ? setPage(pagination.next_page) : undefined
             }
