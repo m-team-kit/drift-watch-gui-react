@@ -26,7 +26,7 @@ COPY ["public", "./"]
 COPY src src
 
 # Install system updates and tools
-RUN npm install -g corepack@latest && corepack enable && corepack install
+RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@latest --activate
 RUN pnpm install
 
 # ================================== BUILDER ===================================
