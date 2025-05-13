@@ -10,41 +10,49 @@ import { useSignals } from '@preact/signals-react/runtime';
 import { Button } from './ui/button';
 import { Dialog, DialogTrigger } from './ui/dialog';
 
-export const selectedDrifts = signal<Array<Drift>>([]);
+export const selectedDrifts = signal<Set<string>>(new Set());
 
 type HeadCheckProps = {
   table: Table<Drift>;
 };
+
+// Function to evaluate the status of HeadCheck
+const getHeadCheckStatus = (table: Table<Drift>): 'all' | 'some' | 'none' => {
+  const displayedRowIds = table.getCenterRows().map((row) => row.original.id);
+  const selectedRowIds = Array.from(selectedDrifts.value).filter((id) =>
+    displayedRowIds.includes(id),
+  );
+
+  if (selectedRowIds.length === displayedRowIds.length && displayedRowIds.length > 0) {
+    return 'all';
+  }
+  if (selectedRowIds.length > 0) {
+    return 'some';
+  }
+  return 'none';
+};
+
 const HeadCheck = ({ table }: HeadCheckProps) => {
   useSignals();
 
-  let all = true;
-  let some = false;
-  for (const row of table.getCenterRows()) {
-    if (!selectedDrifts.value.some((drift) => drift.id === row.original.id)) {
-      all = false;
-    } else {
-      some = true;
-    }
-  }
+  // Dynamically calculate the status without storing any state
+  const status = getHeadCheckStatus(table);
+  const all = status === 'all';
+  const some = status === 'some';
 
   return (
     <Checkbox
       checked={all || (some && 'indeterminate')}
       onCheckedChange={() => {
+        const displayedRowIds = table.getCenterRows().map((row) => row.original.id);
         if (all) {
-          // remove rows from selected
-          selectedDrifts.value = selectedDrifts.value.filter(
-            (drift) => !table.getCenterRows().some((row) => row.original.id === drift.id),
+          // Deselect all displayed rows
+          selectedDrifts.value = new Set(
+            Array.from(selectedDrifts.value).filter((id) => !displayedRowIds.includes(id)),
           );
         } else {
-          // add rows without duplicate to selected
-          selectedDrifts.value = Array.from(
-            new Set<Drift>([
-              ...selectedDrifts.value,
-              ...table.getCenterRows().map((row) => row.original),
-            ]),
-          );
+          // Select all displayed rows
+          selectedDrifts.value = new Set([...selectedDrifts.value, ...displayedRowIds]);
         }
       }}
       aria-label="Select all"
@@ -55,20 +63,27 @@ const HeadCheck = ({ table }: HeadCheckProps) => {
 type CheckProps = {
   drift: Drift;
 };
+
 const Check = ({ drift }: CheckProps) => {
   useSignals();
-  const isSelected = useComputed(() =>
-    selectedDrifts.value.some((select) => select.id === drift.id),
-  );
+
+  // Access the signal value directly, which will cause a re-render when it changes
+  const isSelected = selectedDrifts.value.has(drift.id);
 
   return (
     <Checkbox
-      checked={isSelected.value}
-      onCheckedChange={() =>
-        isSelected.peek()
-          ? (selectedDrifts.value = selectedDrifts.value.filter((select) => select.id !== drift.id))
-          : (selectedDrifts.value = selectedDrifts.value.concat(drift))
-      }
+      checked={isSelected}
+      onCheckedChange={(checked) => {
+        const updatedSet = new Set(selectedDrifts.value);
+        if (checked === false) {
+          // Remove the drift from the selected set
+          updatedSet.delete(drift.id);
+        } else {
+          // Add the drift to the selected set
+          updatedSet.add(drift.id);
+        }
+        selectedDrifts.value = updatedSet; // Update the signal
+      }}
       aria-label="Select row"
       className="me-3"
     />
