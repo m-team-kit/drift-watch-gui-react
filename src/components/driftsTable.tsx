@@ -5,12 +5,54 @@ import { Eye } from 'lucide-react';
 
 import DriftParameters from '@/components/DriftParameters';
 import { Checkbox } from '@/components/ui/checkbox';
-import { signal, useComputed } from '@preact/signals-react';
+import { signal, useComputed, effect } from '@preact/signals-react';
 import { useSignals } from '@preact/signals-react/runtime';
 import { Button } from './ui/button';
 import { Dialog, DialogTrigger } from './ui/dialog';
+import { useMemo } from 'react';
 
+// Add this to persist selections
 export const selectedDrifts = signal<Array<Drift>>([]);
+
+// Function to get current experiment ID from URL path
+export const getCurrentExperimentId = (): string | null => {
+  const path = window.location.pathname;
+  const match = path.match(/\/experiment\/([^/]+)/);
+  return match ? match[1] : null;
+};
+
+// Save to localStorage when selections change
+effect(() => {
+  try {
+    const experimentId = getCurrentExperimentId();
+    if (experimentId) {
+      localStorage.setItem(
+        `drift-selections-${experimentId}`,
+        JSON.stringify(selectedDrifts.value.map(d => d.id))
+      );
+    }
+  } catch (e) {
+    console.error("Failed to save selections to localStorage:", e);
+  }
+});
+
+// Load from localStorage on initial render
+export const initializeSelections = (drifts: Drift[], experimentId: string) => {
+  if (!experimentId || !drifts || !Array.isArray(drifts)) {
+    return;
+  }
+
+  try {
+    const savedSelectionIds = localStorage.getItem(`drift-selections-${experimentId}`);
+    if (savedSelectionIds) {
+      const ids = new Set(JSON.parse(savedSelectionIds));
+      const savedDrifts = drifts.filter(drift => drift && ids.has(drift.id));
+      selectedDrifts.value = savedDrifts;
+    }
+  } catch (e) {
+    console.error("Failed to restore selections from localStorage:", e);
+  }
+};
 
 type HeadCheckProps = {
   table: Table<Drift>;
@@ -18,33 +60,34 @@ type HeadCheckProps = {
 const HeadCheck = ({ table }: HeadCheckProps) => {
   useSignals();
 
-  let all = true;
-  let some = false;
-  for (const row of table.getCenterRows()) {
-    if (!selectedDrifts.value.some((drift) => drift.id === row.original.id)) {
-      all = false;
-    } else {
-      some = true;
-    }
-  }
+  // Create a Set of selected IDs for O(1) lookups
+  const selectedIds = useMemo(() =>
+    new Set(selectedDrifts.value.map(drift => drift.id)),
+    [selectedDrifts.value]
+  );
+
+  const visibleRows = table.getRowModel().rows;
+  const all = visibleRows.length > 0 && visibleRows.every(row => selectedIds.has(row.original.id));
+  const some = !all && visibleRows.some(row => selectedIds.has(row.original.id));
+
+  // With Radix UI Checkbox, we use "indeterminate" string for the indeterminate state
+  const checkedState = all ? true : some ? "indeterminate" : false;
 
   return (
     <Checkbox
-      checked={all || (some && 'indeterminate')}
-      onCheckedChange={() => {
-        if (all) {
-          // remove rows from selected
-          selectedDrifts.value = selectedDrifts.value.filter(
-            (drift) => !table.getCenterRows().some((row) => row.original.id === drift.id),
-          );
+      checked={checkedState}
+      onCheckedChange={(checked) => {
+        if (checked) {
+          // Add all visible rows to selection without duplicates
+          const newSelections = visibleRows
+            .filter(row => !selectedIds.has(row.original.id))
+            .map(row => row.original);
+
+          selectedDrifts.value = [...selectedDrifts.value, ...newSelections];
         } else {
-          // add rows without duplicate to selected
-          selectedDrifts.value = Array.from(
-            new Set<Drift>([
-              ...selectedDrifts.value,
-              ...table.getCenterRows().map((row) => row.original),
-            ]),
-          );
+          // Remove all visible rows from selection
+          const visibleIds = new Set(visibleRows.map(row => row.original.id));
+          selectedDrifts.value = selectedDrifts.value.filter(drift => !visibleIds.has(drift.id));
         }
       }}
       aria-label="Select all"
@@ -57,6 +100,12 @@ type CheckProps = {
 };
 const Check = ({ drift }: CheckProps) => {
   useSignals();
+
+  // Add null check to prevent errors
+  if (!drift || !drift.id) {
+    return null;
+  }
+
   const isSelected = useComputed(() =>
     selectedDrifts.value.some((select) => select.id === drift.id),
   );
@@ -78,7 +127,7 @@ const Check = ({ drift }: CheckProps) => {
 export const driftsColumns: (
   experimentId: string,
   onSortChange: (columnId: string, direction: 'asc' | 'desc' | undefined) => void,
-) => ColumnDef<Drift>[] = (_, onSortChange) => [
+) => ColumnDef<Drift>[] = (experimentId, onSortChange) => [
   {
     id: 'select',
     header: ({ table }) => <HeadCheck table={table} />,

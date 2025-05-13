@@ -3,7 +3,7 @@ import experimentIdDriftSearchPost from '@/api/functions/experimentIdDriftSearch
 import { type Drift, type Experiment } from '@/api/models';
 import { useAuth } from '@/components/AuthContext';
 import ButtonBadge from '@/components/ButtonBadge';
-import { driftsColumns, selectedDrifts } from '@/components/driftsTable';
+import { driftsColumns, selectedDrifts, initializeSelections } from '@/components/driftsTable';
 import EChartsDiagram from '@/components/echarts';
 import Paginate from '@/components/Paginate';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,7 @@ import {
 } from '@tanstack/react-table';
 import { addDays, addSeconds } from 'date-fns';
 import { Plus } from 'lucide-react';
-import { type Dispatch, type FC, type SetStateAction, useCallback, useMemo, useState } from 'react';
+import { type Dispatch, type FC, type SetStateAction, useCallback, useMemo, useState, useEffect } from 'react';
 
 // Function to deselect drifts that do not match the provided tags
 const deselectNotMatchingTags = (tags: string[]) => {
@@ -273,6 +273,46 @@ const Drifts: FC<DriftsProps> = ({ experiment }) => {
     },
     [], // Dependencies array
   );
+
+  // Initialize selections when drifts data loads
+  useEffect(() => {
+    if (drifts.data?.status === 200 && drifts.data.data.length > 0) {
+      initializeSelections(drifts.data.data, experiment.id);
+    }
+  }, [experiment.id, drifts.data?.status]);
+
+  // Synchronize selections when experiment changes
+  useEffect(() => {
+    return () => {
+      // Clear selections when unmounting (experiment changes)
+      selectedDrifts.value = [];
+    };
+  }, [experiment.id]);
+
+  // Synchronize selections with current view on filter changes
+  useEffect(() => {
+    if (drifts.data?.status === 200) {
+      const currentDrifts = drifts.data.data;
+      const currentIds = new Set(currentDrifts.map(d => d.id));
+      
+      // Keep only selected drifts that are still visible or match current filters
+      selectedDrifts.value = selectedDrifts.value.filter(drift => {
+        // Keep if visible in current page
+        if (currentIds.has(drift.id)) return true;
+        
+        // Keep if matches all current filters
+        const createdAt = new Date(drift.created_at);
+        const matchesTags = tagsFilter.length === 0 || 
+          tagsFilter.every(tag => drift.tags?.includes(tag) ?? false);
+        const matchesCompletion = !completionFilter || drift.job_status === completionFilter;
+        const matchesDateRange = 
+          (!after || createdAt >= after) && 
+          (!before || createdAt <= before);
+          
+        return matchesTags && matchesCompletion && matchesDateRange;
+      });
+    }
+  }, [tagsFilter, completionFilter, before, after, page, drifts.data?.status]);
 
   // Pass the sorting handler to driftsColumns
   const columns = useMemo(
