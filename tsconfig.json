@@ -10,7 +10,12 @@
       "@/*": ["./src/*"]
     },
     "allowJs": true,
-    "checkJs": true
+    "checkJs": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noEmit": true
   },
   "include": [
     "src",
