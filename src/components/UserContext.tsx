@@ -42,7 +42,7 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
     mutationFn: async () => {
       const response = await userSelfPut({
         config: {
-          basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
+          basePath: API_BASEPATH,
           auth: {
             bearer: auth.status === 'logged-in' ? auth.auth.token : undefined,
           },
@@ -51,7 +51,7 @@ export const UserProvider = ({ children }: PropsWithChildren) => {
       if (response.status === 403) {
         const registerResponse = await userPost({
           config: {
-            basePath: 'https://drift-watch.dev.ai4eosc.eu/api/latest',
+            basePath: API_BASEPATH,
             auth: {
               bearer: auth.status === 'logged-in' ? auth.auth.token : undefined,
             },

@@ -14,6 +14,17 @@ import {
   useRef,
   useState,
 } from 'react';
+import {
+  OIDC_CLIENT_ID,
+  OIDC_REDIRECT_URL,
+  OIDC_SCOPES,
+  OIDC_AUTHORITY,
+  OIDC_ENDPOINTS_AUTHORIZATION,
+  OIDC_ENDPOINTS_TOKEN,
+  OIDC_ENDPOINTS_USERINFO,
+  OIDC_ENDPOINTS_REVOCATION,
+  OIDC_AUTO_LOGIN,
+} from '@/lib/env';
 
 type AuthFunctions = {
   login: () => Promise<void>;
@@ -69,26 +80,22 @@ const processEnv = (env: {
   OIDC_CLIENT_ID?: string;
   OIDC_REDIRECT_URL?: string;
   OIDC_SCOPES?: string;
-
   OIDC_AUTHORITY?: string;
   OIDC_ENDPOINTS_AUTHORIZATION?: string;
   OIDC_ENDPOINTS_TOKEN?: string;
   OIDC_ENDPOINTS_USERINFO?: string;
   OIDC_ENDPOINTS_REVOCATION?: string;
-
   OIDC_AUTO_LOGIN?: string;
 }): InitialConfiguration => {
   const {
     OIDC_CLIENT_ID: clientId,
     OIDC_REDIRECT_URL: redirectionUrl,
     OIDC_SCOPES: scopes,
-
     OIDC_AUTHORITY: authority,
     OIDC_ENDPOINTS_AUTHORIZATION: authorizationUrl,
     OIDC_ENDPOINTS_TOKEN: tokenUrl,
     OIDC_ENDPOINTS_USERINFO: userInfoUrl,
     OIDC_ENDPOINTS_REVOCATION: revocationUrl,
-
     OIDC_AUTO_LOGIN: autoLogin = 'true',
   } = env;
 
@@ -139,15 +146,15 @@ const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   const authClient = useRef(
     new AuthClient(
       processEnv({
-        OIDC_CLIENT_ID: string(import.meta.env['VITE_OIDC_CLIENT_ID']),
-        OIDC_REDIRECT_URL: string(import.meta.env['VITE_OIDC_REDIRECT_URL']),
-        OIDC_SCOPES: string(import.meta.env['VITE_OIDC_SCOPES']),
-        OIDC_AUTHORITY: string(import.meta.env['VITE_OIDC_AUTHORITY']),
-        OIDC_ENDPOINTS_AUTHORIZATION: string(import.meta.env['VITE_OIDC_ENDPOINTS_AUTHORIZATION']),
-        OIDC_ENDPOINTS_TOKEN: string(import.meta.env['VITE_OIDC_ENDPOINTS_TOKEN']),
-        OIDC_ENDPOINTS_USERINFO: string(import.meta.env['VITE_OIDC_ENDPOINTS_USERINFO']),
-        OIDC_ENDPOINTS_REVOCATION: string(import.meta.env['VITE_OIDC_ENDPOINTS_REVOCATION']),
-        OIDC_AUTO_LOGIN: string(import.meta.env['VITE_OIDC_AUTO_LOGIN']),
+        OIDC_CLIENT_ID,
+        OIDC_REDIRECT_URL,
+        OIDC_SCOPES,
+        OIDC_AUTHORITY,
+        OIDC_ENDPOINTS_AUTHORIZATION,
+        OIDC_ENDPOINTS_TOKEN,
+        OIDC_ENDPOINTS_USERINFO,
+        OIDC_ENDPOINTS_REVOCATION,
+        OIDC_AUTO_LOGIN,
       }),
       (newStatus) => {
         if (newStatus.status === 'logged-in') {

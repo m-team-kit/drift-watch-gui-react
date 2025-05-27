@@ -3,11 +3,9 @@ import eu_logo from '../assets/EN_Co-fundedbytheEU_RGB_NEG.png';
 import ai4eosc_logo from '../assets/ai4eosc-white-no-bg.svg';
 
 import { Link } from '@tanstack/react-router';
-import styles from './Footer.module.scss';
+import { ACCEPTABLE_USE_POLICY_URL, PRIVACY_POLICY_URL, LEGALS_URL } from '@/lib/env';
 
-const acceptableUsePolicy = import.meta.env.VITE_ACCEPTABLE_USE_POLICY_URL;
-const privacyPolicy = import.meta.env.VITE_PRIVACY_POLICY_URL;
-const legals = import.meta.env.VITE_LEGALS_URL;
+import styles from './Footer.module.scss';
 
 const Footer: FC = () => (
   <footer className={styles.footer}>
@@ -22,15 +20,15 @@ const Footer: FC = () => (
       <div className={styles.legals_div}>
         <ul className={styles.legals}>
           <li>
-            <Link to={acceptableUsePolicy}>
+            <Link to={ACCEPTABLE_USE_POLICY_URL}>
               Acceptable Use Policy
             </Link>
           </li>
           <li>
-            <Link to={privacyPolicy}>Privacy Policy</Link>
+            <Link to={PRIVACY_POLICY_URL}>Privacy Policy</Link>
           </li>
           <li>
-            <Link to={legals}>Legals</Link>
+            <Link to={LEGALS_URL}>Legals</Link>
           </li>
         </ul>
       </div>

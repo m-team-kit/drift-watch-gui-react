@@ -4,10 +4,9 @@ import Logo from '../assets/drift_watch-logo.svg';
 import styles from './Header.module.scss';
 import { FaGithub, FaExclamationCircle } from 'react-icons/fa';
 import { SiReadthedocs } from 'react-icons/si';
+import { DOCS_URL, GITHUB_URL } from '@/lib/env';
 
-const docsUrl = import.meta.env.VITE_DOCS_URL;
-const githubUrl = import.meta.env.VITE_GITHUB_URL;
-const issuesUrl = `${githubUrl}/issues`;
+const issuesUrl = `${GITHUB_URL}/issues`;
 
 const Header = () => {
   return (
@@ -24,11 +23,11 @@ const Header = () => {
         </Link>
       </div>
       <div className={styles.nav_links}>
-        <Link to={docsUrl} className={styles.nav_link} activeOptions={{ exact: true }}>
+        <Link to={DOCS_URL} className={styles.nav_link} activeOptions={{ exact: true }}>
           <SiReadthedocs className={styles.icon} />
           <span className={styles.linkText}>Documentation</span>
         </Link>
-        <Link to={githubUrl} className={styles.nav_link} activeOptions={{ exact: true }}>
+        <Link to={GITHUB_URL} className={styles.nav_link} activeOptions={{ exact: true }}>
           <FaGithub className={styles.icon} />
           <span className={styles.linkText}>GitHub</span>
         </Link>
