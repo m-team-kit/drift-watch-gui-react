@@ -2,7 +2,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
+  padding: 10px 20px;
+  background-color: #282c34;
+  color: #ffffff;
+  font-family: sans-serif;
 }
 
 .home_link {
@@ -19,17 +22,48 @@
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #0080ff;
+  color: #61dafb;
   font-size: 1.2rem;
   font-weight: bold;
+  transition: color 0.3s;
 }
 
 .home_button:hover {
   text-decoration: underline;
+  color: #4fa8d8;
+}
+
+.nav_links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav_links a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.nav_links a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .login {
   display: flex;
   align-items: center;
   font-weight: bold;
+}
+
+/* Hide text labels on small screens */
+@media (max-width: 600px) {
+  .linkText {
+    display: none;
+  }
 }

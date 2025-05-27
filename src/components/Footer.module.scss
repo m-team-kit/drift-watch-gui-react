@@ -1,10 +1,10 @@
 .footer {
-  background-color: rgb(38, 39, 39);
+  background-color: #282c34; // matching header background
   color: #ffffff;
-  padding: 30px 20px;
-  margin-top: 30px;
-  font-size: 0.8rem;
-  position: static; // Change from fixed to static to prevent blocking content
+  padding: 20px;
+  font-family: sans-serif;
+  font-size: 0.9rem;
+  position: static;
   bottom: 1rem;
   left: 0;
   width: 100%;
@@ -17,8 +17,8 @@
   align-items: center;
   max-width: 1200px;
   margin: 0 auto;
+  gap: 20px;
   flex-wrap: nowrap;
-  gap: 0rem;
 }
 
 .footer .eu_logo_div,
@@ -52,11 +52,12 @@
 .footer a {
   text-decoration: none;
   color: #ffffff;
-  transition: color 0.3s;
+  transition: color 0.3s, background-color 0.3s;
 }
 
 .footer a:hover {
   color: #cccccc;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .footer .eu_logo {
@@ -66,9 +67,9 @@
 }
 
 .footer .ai4eosc_logo {
-  height: 3.4rem;
+  height: 3rem;
   width: auto;
-  margin-left: 1rem;
+  margin: 0 10px;
 }
 
 @media (max-width: 900px) {
