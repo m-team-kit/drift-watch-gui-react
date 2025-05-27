@@ -5,6 +5,10 @@ import ai4eosc_logo from '../assets/ai4eosc-white-no-bg.svg';
 import { Link } from '@tanstack/react-router';
 import styles from './Footer.module.scss';
 
+const acceptableUsePolicy = import.meta.env.VITE_ACCEPTABLE_USE_POLICY_URL;
+const privacyPolicy = import.meta.env.VITE_PRIVACY_POLICY_URL;
+const legals = import.meta.env.VITE_LEGALS_URL;
+
 const Footer: FC = () => (
   <footer className={styles.footer}>
     <div className={styles.container}>
@@ -18,15 +22,15 @@ const Footer: FC = () => (
       <div className={styles.legals_div}>
         <ul className={styles.legals}>
           <li>
-            <Link to="https://ai4eosc.eu/platform/acceptable-use-policy/">
+            <Link to={acceptableUsePolicy}>
               Acceptable Use Policy
             </Link>
           </li>
           <li>
-            <Link to="https://ai4eosc.eu/privacy-policy/">Privacy Policy</Link>
+            <Link to={privacyPolicy}>Privacy Policy</Link>
           </li>
           <li>
-            <Link to="https://www.scc.kit.edu/en/legals.php">Legals</Link>
+            <Link to={legals}>Legals</Link>
           </li>
         </ul>
       </div>
