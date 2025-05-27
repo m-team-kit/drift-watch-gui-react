@@ -4,18 +4,31 @@ ARG NGINX_VERSION=latest
 # ==================================== BASE ====================================
 FROM node:${NODE_VERSION}-alpine AS base
 
-# Environments to configure OIDC 
+# Arguments for the build process
 ARG HOSTNAME
 ARG OIDC_CLIENT_ID
 ARG OIDC_AUTHORITY
-ARG OIDC_SCOPES="openid profile email"
+ARG OIDC_SCOPES="openid profile email basic roles web-origins"
 ARG API_BASEPATH=/api/latest
 
+ARG DOCS_URL
+ARG GITHUB_URL
+ARG TERMS_USE_URL
+ARG PRIVACY_POLICY_URL
+ARG LEGALS_URL
+
+# Set environment variables for the application
 ENV VITE_OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
 ENV VITE_OIDC_REDIRECT_URL=https://${HOSTNAME}/
-ENV VITE_OIDC_AUTHORITY=${OIDC_AUTHORITY}
 ENV VITE_OIDC_SCOPES=${OIDC_SCOPES}
+ENV VITE_OIDC_AUTHORITY=${OIDC_AUTHORITY}
 ENV VITE_API_BASEPATH=https://${HOSTNAME}${API_BASEPATH}
+
+ENV VITE_DOCS_URL=${DOCS_URL}
+ENV VITE_GITHUB_URL=${GITHUB_URL}
+ENV VITE_ACCEPTABLE_USE_POLICY_URL=${TERMS_USE_URL}
+ENV VITE_PRIVACY_POLICY_URL=${PRIVACY_POLICY_URL}
+ENV VITE_LEGALS_URL=${LEGALS_URL}
 
 # Copy requirements (see .dockerignore)
 WORKDIR /srv
