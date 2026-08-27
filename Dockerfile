@@ -39,8 +39,16 @@ COPY ["public", "./"]
 COPY src src
 
 # Install system updates and tools
-RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@latest --activate
-RUN pnpm install
+# NOTE: pnpm@latest resolves to v11+ which breaks the v9 lockfile and blocks
+# dependency build scripts (e.g. esbuild) by default. Pinned to 9.15.5 to match
+# the committed pnpm-lock.yaml. --frozen-lockfile enforces reproducible installs.
+# RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@latest --activate
+# RUN pnpm install
+RUN npm install -g corepack@latest \
+    && corepack enable \
+    && corepack prepare pnpm@9.15.5 --activate
+
+RUN pnpm install --frozen-lockfile
 
 # ================================== BUILDER ===================================
 FROM base AS build
